@@ -117,6 +117,8 @@ Each successful turn atomically stores the user message, assistant answer, provi
 
 Enter a focused topic (or ask a grounded question first), then choose **Ship 30 essay** in the composer. The dedicated skill retrieves up to eight transcript passages, asks the active provider for an approximately 1,250-word structured essay, persists the artifact and source manifest, and opens it in the responsive artifact pane.
 
+The skill encodes the assignment-linked Ship 30 framework: topic/audience specificity, curator credibility, a deliberate 4A lens, and one consistent proven structure such as steps or lessons. **HTML brief** uses the same grounded workflow but returns semantic HTML for the isolated viewer.
+
 - Markdown is displayed as inert text rather than injected into the application DOM.
 - HTML artifacts pass through a server-side allowlist sanitizer and render in a sandboxed iframe.
 - The iframe embeds a restrictive Content Security Policy and receives no script, navigation, or same-origin capability.

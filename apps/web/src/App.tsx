@@ -90,7 +90,7 @@ export function App() {
     }
   }
 
-  async function generateShip30Artifact() {
+  async function generateArtifact(kind: Artifact["kind"]) {
     let session = activeSession;
     if (!session) {
       try {
@@ -111,7 +111,7 @@ export function App() {
     setIsGeneratingArtifact(true);
     setIsArtifactOpen(true);
     try {
-      const artifact = await createArtifact(session.id, topic, "markdown");
+      const artifact = await createArtifact(session.id, topic, kind);
       setArtifacts((current) => [artifact, ...current]);
       setActiveArtifact(artifact);
       setPrompt("");
@@ -226,7 +226,7 @@ export function App() {
           )}
         </div>
 
-        <div className="composer-wrap"><form className="composer" onSubmit={submit}><label className="sr-only" htmlFor="message">Ask about product or growth</label><textarea id="message" rows={2} value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="Ask about product, growth, or turn an answer into an artifact…" disabled={isResponding || isGeneratingArtifact} /><div className="composer-footer"><button className="artifact-action" type="button" onClick={() => void generateShip30Artifact()} disabled={isGeneratingArtifact}><FileText size={14} />{isGeneratingArtifact ? "Writing essay…" : "Ship 30 essay"}</button><button className="send-button" type="submit" aria-label="Send message" disabled={!prompt.trim() || isResponding || isGeneratingArtifact}><ArrowUp size={18} /></button></div></form><p className="disclaimer">Grounded in indexed transcripts. Verify important decisions with the original episode.</p></div>
+        <div className="composer-wrap"><form className="composer" onSubmit={submit}><label className="sr-only" htmlFor="message">Ask about product or growth</label><textarea id="message" rows={2} value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="Ask about product, growth, or turn an answer into an artifact…" disabled={isResponding || isGeneratingArtifact} /><div className="composer-footer"><div className="artifact-actions"><button className="artifact-action" type="button" onClick={() => void generateArtifact("markdown")} disabled={isGeneratingArtifact}><FileText size={14} />{isGeneratingArtifact ? "Generating…" : "Ship 30 essay"}</button><button className="artifact-action" type="button" onClick={() => void generateArtifact("html")} disabled={isGeneratingArtifact}><PanelRight size={14} />HTML brief</button></div><button className="send-button" type="submit" aria-label="Send message" disabled={!prompt.trim() || isResponding || isGeneratingArtifact}><ArrowUp size={18} /></button></div></form><p className="disclaimer">Grounded in indexed transcripts. Verify important decisions with the original episode.</p></div>
       </section>
       {isArtifactOpen && (
         <aside className="artifact-viewer" aria-label="Artifact viewer">

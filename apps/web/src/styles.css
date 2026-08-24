@@ -101,6 +101,7 @@ button { cursor: pointer; }
 .composer textarea { width: 100%; resize: none; border: 0; outline: 0; background: transparent; color: var(--ink); line-height: 1.5; }
 .composer textarea::placeholder { color: #999b94; }
 .composer-footer { display: flex; justify-content: space-between; align-items: center; color: #8b8e86; font-size: 11px; }
+.artifact-actions { display: flex; align-items: center; gap: 6px; }
 .composer-footer button { width: 34px; height: 34px; border: 0; border-radius: 10px; display: grid; place-items: center; color: white; background: var(--blue); }
 .composer-footer button:disabled { cursor: not-allowed; background: #b8bbb5; }
 .composer-footer .artifact-action { width: auto; padding: 0 10px; grid-auto-flow: column; gap: 6px; border: 1px solid #cad7ef; color: #3157a5; background: #eef3fc; font-size: 10px; font-weight: 700; }
@@ -140,6 +141,7 @@ button:focus-visible, textarea:focus-visible { outline: 3px solid rgba(49,95,206
   .suggestions { grid-template-columns: 1fr; }
   .suggestions button { min-height: auto; }
   .composer-wrap { width: calc(100% - 28px); margin-bottom: 14px; }
+  .artifact-actions .artifact-action:last-child { display: none; }
   .artifact-viewer { position: fixed; z-index: 40; inset: 0; height: 100dvh; padding: 14px; }
   .artifact-canvas iframe { min-height: calc(100dvh - 150px); }
   .markdown-artifact { padding: 28px 22px; }

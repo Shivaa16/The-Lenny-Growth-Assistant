@@ -74,7 +74,10 @@ async def test_ship30_skill_is_grounded_and_persists_metadata() -> None:
     artifact = await service.create(uuid4(), "How growth loops compound", "markdown")
 
     assert "approximately 1,250-word essay" in provider.system_prompt
+    assert "4A path" in provider.system_prompt
+    assert "Proven approach" in provider.system_prompt
     assert artifact.artifact_metadata["skill"] == "ship-30-for-30"
+    assert artifact.artifact_metadata["skill_source"].startswith("https://www.ship30for30.com/")
     assert artifact.artifact_metadata["citations"][0]["title"] == "Growth loops"
     assert repository.saved is artifact
 
