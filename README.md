@@ -128,6 +128,8 @@ Artifact endpoints:
 
 ## Quality gates
 
+GitHub Actions runs the same backend and frontend gates on every push to `main` and on pull requests. The API job requires no external services: provider and persistence contracts use deterministic test doubles, while Alembic emits the complete PostgreSQL migration chain in offline mode.
+
 ```powershell
 cd apps/api
 pytest
