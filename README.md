@@ -59,7 +59,16 @@ The interface uses a restrained white-and-blue product system designed for long 
    pnpm run dev
    ```
 
-The evaluator path is `docker compose up --build`. It starts PostgreSQL, applies migrations, and serves the API and web application. Ollama stays on the host so it can use the laptop GPU.
+The evaluator path is `docker compose up --build`. It starts pgvector PostgreSQL, applies migrations, waits for the API readiness check, and only then serves the web application at `http://localhost:5173`. Ollama stays on the host so it can use the laptop GPU. Compose maps `host.docker.internal` on both Docker Desktop and Linux-compatible engines.
+
+Service health can be inspected without opening the UI:
+
+```powershell
+docker compose ps
+Invoke-RestMethod http://localhost:5173/health/ready
+```
+
+Both application containers use health checks and restart policies. Nginx adds baseline response-security headers and gives long local-model generations a bounded proxy timeout.
 
 ## Build the transcript index
 
