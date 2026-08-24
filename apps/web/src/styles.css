@@ -3,19 +3,24 @@
 :root {
   font-family: "DM Sans", system-ui, sans-serif;
   color: #232622;
-  background: #f4f1e9;
+  background: #f4f6f3;
   font-synthesis: none;
   --ink: #232622;
   --muted: #74776f;
-  --line: #dedbd1;
-  --paper: #fbfaf6;
+  --line: #dce2dd;
+  --paper: #ffffff;
   --green: #1e5b49;
   --green-light: #e3eee8;
   --coral: #e56e51;
 }
 
 * { box-sizing: border-box; }
-body { margin: 0; min-width: 320px; min-height: 100vh; }
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: #f4f6f3;
+}
 button, textarea { font: inherit; }
 button { cursor: pointer; }
 
@@ -43,8 +48,30 @@ button { cursor: pointer; }
 .rail-footer span { color: #8eaba1; font-size: 9px; }
 .avatar { width: 34px; height: 34px; border-radius: 50%; background: #f2d4c6; color: #5c2e22; font-size: 11px; font-weight: 700; display: grid; place-items: center; }
 
-.workspace { min-width: 0; min-height: 100vh; display: grid; grid-template-rows: auto 1fr auto; }
-.topbar { height: 82px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; padding: 0 34px; background: rgba(251,250,246,.82); backdrop-filter: blur(12px); }
+.workspace {
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background:
+    radial-gradient(circle at 15% 8%, rgba(202, 225, 214, .42), transparent 28rem),
+    radial-gradient(circle at 92% 84%, rgba(244, 217, 203, .34), transparent 30rem),
+    linear-gradient(145deg, #f8faf8 0%, #f3f6f3 52%, #f8f7f3 100%);
+}
+.workspace::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  opacity: .28;
+  background-image: radial-gradient(rgba(43, 76, 65, .18) .6px, transparent .6px);
+  background-size: 22px 22px;
+  mask-image: linear-gradient(to bottom, black, transparent 72%);
+}
+.topbar { height: 82px; border-bottom: 1px solid rgba(211, 220, 214, .82); display: flex; align-items: center; justify-content: space-between; padding: 0 34px; background: rgba(250,252,250,.76); backdrop-filter: blur(16px); }
 .mobile-menu { display: none; border: 0; background: transparent; color: var(--ink); }
 .eyebrow { margin: 0 0 5px; color: var(--green); font-size: 10px; font-weight: 700; letter-spacing: .16em; }
 .topbar h1 { margin: 0; font-size: 17px; font-weight: 600; }
@@ -62,12 +89,12 @@ button { cursor: pointer; }
 .welcome h2 { margin: 5px 0 14px; font-family: "Newsreader", Georgia, serif; font-size: clamp(38px, 5vw, 58px); line-height: 1.02; font-weight: 500; letter-spacing: -.025em; }
 .welcome-copy { max-width: 580px; margin: 0 auto; color: var(--muted); line-height: 1.65; font-size: 15px; }
 .suggestions { margin-top: 34px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: left; }
-.suggestions button { min-height: 94px; border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: flex; align-items: flex-start; gap: 10px; color: #3e443e; background: rgba(251,250,246,.7); line-height: 1.4; transition: transform .18s, border-color .18s, background .18s; }
-.suggestions button:hover { transform: translateY(-2px); border-color: #a7bdb4; background: var(--paper); }
+.suggestions button { min-height: 94px; border: 1px solid rgba(216,224,218,.9); border-radius: 14px; padding: 16px; display: flex; align-items: flex-start; gap: 10px; color: #3e443e; background: rgba(255,255,255,.72); box-shadow: 0 8px 28px rgba(47,72,62,.045); backdrop-filter: blur(8px); line-height: 1.4; transition: transform .18s, border-color .18s, background .18s, box-shadow .18s; }
+.suggestions button:hover { transform: translateY(-2px); border-color: #a7bdb4; background: var(--paper); box-shadow: 0 12px 32px rgba(47,72,62,.08); }
 .suggestions svg { flex: 0 0 auto; color: var(--green); margin-top: 2px; }
 
 .message-preview { width: min(760px, 100%); align-self: start; display: grid; gap: 24px; }
-.user-message { justify-self: end; max-width: 75%; background: #e6e1d7; border-radius: 18px 18px 5px 18px; padding: 13px 17px; line-height: 1.5; }
+.user-message { justify-self: end; max-width: 75%; border: 1px solid #dce5df; background: rgba(236,243,239,.9); border-radius: 18px 18px 5px 18px; padding: 13px 17px; line-height: 1.5; }
 .assistant-state { display: flex; align-items: flex-start; gap: 12px; color: #304d44; }
 .assistant-state p { margin: 5px 0 0; color: var(--muted); }
 .assistant-state.responding svg { animation: pulse 1.4s ease-in-out infinite; }
