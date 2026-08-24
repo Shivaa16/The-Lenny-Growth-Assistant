@@ -64,6 +64,8 @@ button { cursor: pointer; }
 .topbar-actions { display: flex; align-items: center; gap: 12px; }
 .provider-pill { display: inline-flex; align-items: center; gap: 8px; border: 1px solid #ced9ee; border-radius: 999px; padding: 8px 12px; color: #354765; background: #f4f7fc; font-size: 12px; font-weight: 600; }
 .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #3970df; box-shadow: 0 0 0 3px #dfe9ff; }
+.provider-pill.unavailable { border-color: #e7c7bb; color: #844832; background: #fff7f3; }
+.provider-pill.unavailable .status-dot { background: #cf6847; box-shadow: 0 0 0 3px #f8ded4; }
 .icon-button { width: 38px; height: 38px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--ink); display: grid; place-items: center; }
 .storage-alert { margin: 14px 22px -2px; border: 1px solid #e5b9aa; border-radius: 11px; padding: 10px 12px; display: flex; align-items: center; gap: 9px; color: #743c2d; background: #fff4ef; font-size: 11px; }
 .storage-alert span { flex: 1; }
@@ -137,6 +139,7 @@ button:focus-visible, textarea:focus-visible { outline: 3px solid rgba(49,95,206
   .topbar > div:nth-child(2) { flex: 1; margin-left: 12px; }
   .provider-pill { font-size: 0; padding: 10px; }
   .provider-pill::after { content: "Local"; font-size: 11px; }
+  .provider-pill.unavailable::after { content: "Offline"; }
   .conversation { padding: 32px 18px 20px; }
   .suggestions { grid-template-columns: 1fr; }
   .suggestions button { min-height: auto; }
@@ -156,6 +159,19 @@ button:focus-visible, textarea:focus-visible { outline: 3px solid rgba(49,95,206
   .app-shell:has(.artifact-viewer) .rail-label,
   .app-shell:has(.artifact-viewer) .session-list,
   .app-shell:has(.artifact-viewer) .rail-footer > div:last-child { display: none; }
+}
+
+@media (min-width: 761px) and (max-height: 760px) {
+  .topbar { height: 70px; }
+  .conversation { padding-block: 20px 14px; }
+  .sparkle { width: 44px; height: 44px; margin-bottom: 14px; border-radius: 13px; }
+  .welcome h2 { max-width: 720px; margin: 3px auto 9px; font-size: clamp(34px, 4vw, 46px); }
+  .welcome-copy { font-size: 13px; }
+  .suggestions { margin-top: 22px; }
+  .suggestions button { min-height: 76px; padding: 13px; }
+  .composer-wrap { margin-bottom: 12px; }
+  .composer { padding-top: 11px; }
+  .disclaimer { margin-top: 6px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

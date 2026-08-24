@@ -34,6 +34,7 @@ export function App() {
   const [isResponding, setIsResponding] = useState(false);
   const [isMobileRailOpen, setIsMobileRailOpen] = useState(false);
   const [providerInfo, setProviderInfo] = useState<ProviderInfo | null>(null);
+  const [isProviderUnavailable, setIsProviderUnavailable] = useState(false);
   const [artifacts, setArtifacts] = useState<Artifact[]>([]);
   const [activeArtifact, setActiveArtifact] = useState<Artifact | null>(null);
   const [isArtifactOpen, setIsArtifactOpen] = useState(false);
@@ -50,7 +51,14 @@ export function App() {
   }, []);
 
   useEffect(() => { void refreshSessions(); }, [refreshSessions]);
-  useEffect(() => { void getProviderInfo().then(setProviderInfo).catch(() => undefined); }, []);
+  useEffect(() => {
+    void getProviderInfo()
+      .then((info) => {
+        setProviderInfo(info);
+        setIsProviderUnavailable(false);
+      })
+      .catch(() => setIsProviderUnavailable(true));
+  }, []);
 
   async function startNewSession() {
     setIsCreating(true);
@@ -178,7 +186,7 @@ export function App() {
         <header className="topbar">
           <button className="mobile-menu" aria-label="Open conversations" onClick={() => setIsMobileRailOpen(true)}><Menu size={20} /></button>
           <div><p className="eyebrow">LENNY GROWTH ASSISTANT</p><h1>{activeSession?.title ?? "New conversation"}</h1></div>
-          <div className="topbar-actions"><span className="provider-pill"><span className="status-dot" /> {providerInfo ? `${providerInfo.provider === "ollama" ? "Local" : "Cloud"} · ${providerInfo.model}` : "Provider loading"}</span><button className="icon-button" aria-label="Toggle artifact viewer" onClick={() => setIsArtifactOpen((current) => !current)}><PanelRight size={19} /></button></div>
+          <div className="topbar-actions"><span className={`provider-pill${isProviderUnavailable ? " unavailable" : ""}`}><span className="status-dot" /> {providerInfo ? `${providerInfo.provider === "ollama" ? "Local" : "Cloud"} · ${providerInfo.model}` : isProviderUnavailable ? "API offline" : "Connecting…"}</span><button className="icon-button" aria-label="Toggle artifact viewer" onClick={() => setIsArtifactOpen((current) => !current)}><PanelRight size={19} /></button></div>
         </header>
 
         {storageError && <div className="storage-alert" role="alert"><AlertCircle size={17} /><span>{storageError}</span><button onClick={() => void refreshSessions()}>Retry</button></div>}

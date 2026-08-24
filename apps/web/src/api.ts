@@ -94,8 +94,11 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   }
   if (!response.ok) {
     const payload = (await response.json().catch(() => ({}))) as ApiErrorPayload;
+    const fallbackMessage = response.status >= 500
+      ? "The API or one of its required services is unavailable. Start FastAPI and PostgreSQL, then retry."
+      : "The request could not be completed.";
     throw new ApiError(
-      payload.error?.message ?? "The request could not be completed.",
+      payload.error?.message ?? fallbackMessage,
       response.status,
       payload.error?.code,
       payload.error?.request_id

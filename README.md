@@ -99,6 +99,8 @@ Both application containers use health checks and restart policies. Nginx adds b
 
 Database connection failures—including raw driver-level connection refusals—are normalized to a structured `503 persistence_unavailable` response. Expected dependency outages therefore produce concise warning logs and actionable UI states rather than internal stack traces.
 
+The frontend distinguishes initial connection, API-offline, and dependency-unavailable states. A compact laptop-height layout keeps the complete composer and primary actions visible without sacrificing the desktop session rail.
+
 After the services report healthy, run the evaluator smoke test through the public web endpoint:
 
 ```powershell
