@@ -7,6 +7,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from lenny_api.agent.types import GenerationProviderError
 from lenny_api.config import get_settings
 from lenny_api.knowledge.embeddings import EmbeddingProviderError
 from lenny_api.knowledge.router import router as knowledge_router
@@ -106,6 +107,19 @@ async def embedding_unavailable(request: Request, _: EmbeddingProviderError) -> 
         status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
         code="embedding_provider_unavailable",
         message="The local embedding model is unavailable. Start Ollama and retry.",
+    )
+
+
+@app.exception_handler(GenerationProviderError)
+async def generation_unavailable(
+    request: Request, exc: GenerationProviderError
+) -> JSONResponse:
+    logger.warning("generation_provider_unavailable", provider=exc.provider)
+    return error_response(
+        request,
+        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+        code="generation_provider_unavailable",
+        message=f"The selected {exc.provider} generation provider is unavailable. Please retry.",
     )
 
 

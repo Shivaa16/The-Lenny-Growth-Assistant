@@ -10,7 +10,44 @@ export type SessionSummary = {
 };
 
 type SessionList = { items: SessionSummary[]; total: number };
+export type SessionDetail = SessionSummary & { messages: Message[] };
 type ApiErrorPayload = { error?: { code?: string; message?: string; request_id?: string } };
+
+export type Message = {
+  id: string;
+  session_id: string;
+  role: "user" | "assistant" | "system";
+  content: string;
+  status: "pending" | "completed" | "failed";
+  model_metadata: Record<string, unknown>;
+  created_at: string;
+};
+
+export type Citation = {
+  position: number;
+  chunk_id: string;
+  title: string;
+  guest: string;
+  youtube_url: string | null;
+  repository_path: string;
+  quoted_text: string;
+  relevance_score: number;
+};
+
+export type ConversationTurn = {
+  user_message: Message;
+  assistant_message: Message;
+  citations: Citation[];
+  grounded: boolean;
+};
+
+export type ProviderInfo = {
+  provider: "ollama" | "anthropic";
+  model: string;
+  local_model: string;
+  embedding_model: string;
+  cloud_configured: boolean;
+};
 
 export class ApiError extends Error {
   constructor(
@@ -49,15 +86,19 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 export const listSessions = (): Promise<SessionList> =>
   request("/api/v1/sessions?user_id=local-evaluator");
 
+export const getProviderInfo = (): Promise<ProviderInfo> => request("/api/v1/config");
+
+export const getSession = (sessionId: string): Promise<SessionDetail> =>
+  request(`/api/v1/sessions/${sessionId}`);
+
 export const createSession = (): Promise<SessionSummary> =>
   request("/api/v1/sessions", {
     method: "POST",
     body: JSON.stringify({ user_id: "local-evaluator", title: "New conversation" })
   });
 
-export const addMessage = (sessionId: string, content: string): Promise<void> =>
+export const addMessage = (sessionId: string, content: string): Promise<ConversationTurn> =>
   request(`/api/v1/sessions/${sessionId}/messages`, {
     method: "POST",
     body: JSON.stringify({ content })
   });
-

@@ -73,6 +73,9 @@ class MessageRecord(Base):
     )
 
     session: Mapped[SessionRecord] = relationship(back_populates="messages")
+    citations: Mapped[list["CitationRecord"]] = relationship(
+        back_populates="message", cascade="all, delete-orphan", passive_deletes=True
+    )
 
 
 class SourceRecord(TimestampMixin, Base):
@@ -130,6 +133,7 @@ class ChunkRecord(Base):
     )
 
     source: Mapped[SourceRecord] = relationship(back_populates="chunks")
+    citations: Mapped[list["CitationRecord"]] = relationship(back_populates="chunk")
 
 
 class CitationRecord(Base):
@@ -152,3 +156,6 @@ class CitationRecord(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
+
+    message: Mapped[MessageRecord] = relationship(back_populates="citations")
+    chunk: Mapped[ChunkRecord] = relationship(back_populates="citations")

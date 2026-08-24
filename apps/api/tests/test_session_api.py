@@ -2,6 +2,8 @@ from uuid import UUID, uuid4
 
 from fastapi.testclient import TestClient
 
+from lenny_api.agent.dependencies import get_grounded_conversation_service
+from lenny_api.agent.types import GenerationProviderError
 from lenny_api.main import app
 from lenny_api.sessions.dependencies import get_session_service
 from lenny_api.sessions.exceptions import PersistenceUnavailableError, SessionNotFoundError
@@ -49,3 +51,22 @@ def test_database_failure_returns_actionable_service_unavailable() -> None:
     assert response.status_code == 503
     assert response.json()["error"]["code"] == "persistence_unavailable"
 
+
+class OfflineGenerationService:
+    async def answer(self, session_id: UUID, question: str):
+        raise GenerationProviderError("ollama", "offline")
+
+
+def test_generation_failure_returns_actionable_service_unavailable() -> None:
+    app.dependency_overrides[get_grounded_conversation_service] = (
+        lambda: OfflineGenerationService()
+    )
+    try:
+        response = TestClient(app).post(
+            f"/api/v1/sessions/{uuid4()}/messages", json={"content": "How do loops work?"}
+        )
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 503
+    assert response.json()["error"]["code"] == "generation_provider_unavailable"

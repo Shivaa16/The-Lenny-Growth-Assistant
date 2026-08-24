@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator
 
 
 class CreateSessionRequest(BaseModel):
@@ -76,3 +76,20 @@ class SessionListResponse(BaseModel):
     items: list[SessionSummaryResponse]
     total: int
 
+
+class CitationResponse(BaseModel):
+    position: int
+    chunk_id: UUID
+    title: str
+    guest: str
+    youtube_url: HttpUrl | None
+    repository_path: str
+    quoted_text: str
+    relevance_score: float
+
+
+class ConversationTurnResponse(BaseModel):
+    user_message: MessageResponse
+    assistant_message: MessageResponse
+    citations: list[CitationResponse]
+    grounded: bool

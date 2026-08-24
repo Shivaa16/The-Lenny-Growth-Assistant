@@ -65,6 +65,17 @@ Ingestion is incremental. Each source stores its repository path, repository com
 
 Retrieval can be inspected independently from generation through `POST /api/v1/retrieval/search`. It combines pgvector cosine similarity with PostgreSQL full-text ranking, returns episode metadata with every passage, and reports an empty evidence list when the configured grounding threshold is not met.
 
+## Conversational providers
+
+`LLM_PROVIDER` selects the generation adapter without application-code changes:
+
+- `ollama` uses the local `/api/chat` endpoint and defaults to `qwen2.5:3b`.
+- `anthropic` uses the required Claude Agent SDK with tools disabled, one bounded turn, a timeout, and a configurable per-request budget.
+
+Both providers receive the same constrained evidence prompt and recent persisted session context. Retrieval runs before generation; when no passage clears the grounding threshold, the system returns a deterministic insufficient-evidence response without calling a model. Greetings are routed locally without retrieval so the interface remains natural and inexpensive.
+
+Each successful turn atomically stores the user message, assistant answer, provider/model usage metadata, and the exact chunk citations presented in the UI.
+
 ## Quality gates
 
 ```powershell

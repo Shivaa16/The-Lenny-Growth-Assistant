@@ -62,6 +62,14 @@ Refresh is idempotent: unchanged checksums are skipped. A changed transcript is 
 
 Every chunk has a 768-dimensional `nomic-embed-text` vector and a generated PostgreSQL English `tsvector`. Retrieval weights cosine similarity at 75% and capped keyword relevance at 25%, then applies the configured minimum score. The independent retrieval endpoint makes evidence selection observable and testable before answer generation is introduced.
 
+## Agent routing and grounded conversation
+
+The agent boundary is provider-neutral. `GroundedConversationService` loads bounded session history, builds a context-aware retrieval query, applies the grounding threshold, formats numbered evidence, calls the configured provider, and commits the complete turn with citations in one transaction.
+
+The local adapter uses Ollama chat with low-temperature generation and captured usage metrics. The cloud adapter uses Anthropic's Claude Agent SDK with an explicit system prompt, no tools, one maximum turn, a request timeout, and a configurable cost budget. Provider-specific failures normalize to a safe 503 response without leaking credentials or internal exceptions.
+
+Simple greetings are handled by a deterministic conversation route. Unsupported knowledge questions receive a deterministic refusal when retrieval returns no qualifying evidence. Transcript text is explicitly labeled as untrusted evidence so embedded instructions cannot alter the system contract.
+
 ## Security
 
 - Secrets are loaded from environment variables and never returned to the browser.

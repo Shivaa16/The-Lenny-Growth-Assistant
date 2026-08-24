@@ -70,6 +70,18 @@ button { cursor: pointer; }
 .user-message { justify-self: end; max-width: 75%; background: #e6e1d7; border-radius: 18px 18px 5px 18px; padding: 13px 17px; line-height: 1.5; }
 .assistant-state { display: flex; align-items: flex-start; gap: 12px; color: #304d44; }
 .assistant-state p { margin: 5px 0 0; color: var(--muted); }
+.assistant-state.responding svg { animation: pulse 1.4s ease-in-out infinite; }
+.assistant-answer { display: grid; grid-template-columns: 34px 1fr; gap: 12px; color: #30342f; }
+.answer-icon { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; color: var(--green); background: var(--green-light); }
+.assistant-answer > div > p { margin: 3px 0 0; white-space: pre-wrap; line-height: 1.7; font-size: 14px; }
+.source-list { margin-top: 24px; border-top: 1px solid var(--line); padding-top: 16px; }
+.source-list h3 { margin: 0 0 10px; color: #6d716a; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+.source-list a { border: 1px solid var(--line); border-radius: 11px; margin-top: 7px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; color: var(--ink); background: rgba(251,250,246,.7); text-decoration: none; }
+.source-list a:hover { border-color: #a7bdb4; background: var(--paper); }
+.source-list a > span:last-child { min-width: 0; display: grid; gap: 2px; }
+.source-list strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
+.source-list small { color: var(--muted); font-size: 9px; }
+.source-number { width: 25px; height: 25px; flex: 0 0 auto; border-radius: 8px; display: grid; place-items: center; color: var(--green); background: var(--green-light); font-size: 10px; font-weight: 700; }
 
 .composer-wrap { width: min(800px, calc(100% - 48px)); margin: 0 auto 24px; }
 .composer { border: 1px solid #ccc9bf; border-radius: 18px; padding: 14px 14px 10px 18px; background: var(--paper); box-shadow: 0 14px 40px rgba(47,55,50,.08); }
@@ -102,4 +114,9 @@ button:focus-visible, textarea:focus-visible { outline: 3px solid rgba(229,110,8
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: .45; transform: scale(.92); }
+  50% { opacity: 1; transform: scale(1); }
 }

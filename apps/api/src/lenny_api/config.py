@@ -32,6 +32,9 @@ class Settings(BaseSettings):
     embedding_dimension: int = Field(default=768, ge=128, le=4096)
     anthropic_api_key: SecretStr | None = None
     anthropic_model: str | None = None
+    anthropic_max_budget_usd: float = Field(default=0.05, gt=0, le=1)
+    generation_timeout_seconds: float = Field(default=90, ge=10, le=300)
+    conversation_history_messages: int = Field(default=8, ge=0, le=20)
 
     retrieval_top_k: int = Field(default=6, ge=1, le=20)
     retrieval_score_threshold: float = Field(default=0.35, ge=0, le=1)

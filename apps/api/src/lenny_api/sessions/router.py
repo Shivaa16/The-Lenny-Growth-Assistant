@@ -3,8 +3,11 @@ from uuid import UUID
 
 from fastapi import APIRouter, Query, Response, status
 
+from lenny_api.agent.dependencies import GroundedConversationDependency
 from lenny_api.sessions.dependencies import SessionServiceDependency
 from lenny_api.sessions.schemas import (
+    CitationResponse,
+    ConversationTurnResponse,
     CreateMessageRequest,
     CreateSessionRequest,
     MessageResponse,
@@ -61,11 +64,30 @@ async def delete_session(session_id: UUID, service: SessionServiceDependency) ->
 
 @router.post(
     "/{session_id}/messages",
-    response_model=MessageResponse,
+    response_model=ConversationTurnResponse,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_message(
-    session_id: UUID, request: CreateMessageRequest, service: SessionServiceDependency
-) -> MessageResponse:
-    return MessageResponse.model_validate(await service.add_user_message(session_id, request))
-
+    session_id: UUID,
+    request: CreateMessageRequest,
+    conversation: GroundedConversationDependency,
+) -> ConversationTurnResponse:
+    turn, evidence = await conversation.answer(session_id, request.content)
+    return ConversationTurnResponse(
+        user_message=MessageResponse.model_validate(turn.user_message),
+        assistant_message=MessageResponse.model_validate(turn.assistant_message),
+        citations=[
+            CitationResponse(
+                position=index,
+                chunk_id=item.chunk_id,
+                title=item.title,
+                guest=item.guest,
+                youtube_url=item.youtube_url,
+                repository_path=item.repository_path,
+                quoted_text=item.content,
+                relevance_score=item.score,
+            )
+            for index, item in enumerate(evidence, start=1)
+        ],
+        grounded=bool(evidence),
+    )
