@@ -1,4 +1,4 @@
-.PHONY: setup-models sync-transcripts ingest-transcripts up down migrate api-test web-build
+.PHONY: setup-models sync-transcripts ingest-transcripts ingest-demo up down migrate api-test web-build smoke
 
 setup-models:
 	ollama pull qwen2.5:3b
@@ -9,6 +9,9 @@ sync-transcripts:
 
 ingest-transcripts:
 	cd apps/api && python -m lenny_api.knowledge.cli
+
+ingest-demo:
+	cd apps/api && python -m lenny_api.knowledge.cli --limit 25
 
 up:
 	docker compose up --build
@@ -24,3 +27,6 @@ api-test:
 
 web-build:
 	cd apps/web && npm run build
+
+smoke:
+	powershell -ExecutionPolicy Bypass -File scripts/smoke.ps1

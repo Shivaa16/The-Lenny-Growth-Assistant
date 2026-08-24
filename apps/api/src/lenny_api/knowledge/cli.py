@@ -20,7 +20,7 @@ def repository_commit(repository_root: Path) -> str | None:
     return result.stdout.strip() if result.returncode == 0 else None
 
 
-async def ingest(source_dir: Path) -> int:
+async def ingest(source_dir: Path, *, max_transcripts: int | None = None) -> int:
     settings = get_settings()
     embeddings = OllamaEmbeddingProvider(
         base_url=str(settings.ollama_base_url),
@@ -36,7 +36,9 @@ async def ingest(source_dir: Path) -> int:
                 overlap_words=settings.chunk_overlap_words,
             )
             result = await service.ingest_repository(
-                source_dir.resolve(), repository_commit=repository_commit(source_dir)
+                source_dir.resolve(),
+                repository_commit=repository_commit(source_dir),
+                max_transcripts=max_transcripts,
             )
     finally:
         await dispose_engine()
@@ -51,8 +53,18 @@ def main() -> None:
     settings = get_settings()
     parser = argparse.ArgumentParser(description="Index Lenny's Podcast transcripts")
     parser.add_argument("--source-dir", type=Path, default=Path(settings.transcript_source_dir))
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help="Index only the first N transcripts for a fast low-storage demo bootstrap",
+    )
     arguments = parser.parse_args()
-    raise SystemExit(asyncio.run(ingest(arguments.source_dir)))
+    if arguments.limit is not None and arguments.limit < 1:
+        parser.error("--limit must be greater than zero")
+    raise SystemExit(
+        asyncio.run(ingest(arguments.source_dir, max_transcripts=arguments.limit))
+    )
 
 
 if __name__ == "__main__":

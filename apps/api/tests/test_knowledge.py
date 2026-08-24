@@ -8,7 +8,7 @@ from lenny_api.knowledge.chunking import chunk_transcript
 from lenny_api.knowledge.embeddings import EmbeddingProviderError, OllamaEmbeddingProvider
 from lenny_api.knowledge.parser import TranscriptParseError, discover_transcripts, parse_transcript
 from lenny_api.knowledge.repository import RetrievedEvidence
-from lenny_api.knowledge.service import RetrievalService
+from lenny_api.knowledge.service import IngestionService, RetrievalService
 from lenny_api.knowledge.sync import TranscriptSyncError, sync
 
 
@@ -68,6 +68,37 @@ def test_chunking_is_deterministic_and_overlapping() -> None:
         (9, 12),
     ]
     assert chunks[0].content.split()[-2:] == chunks[1].content.split()[:2]
+
+
+@pytest.mark.asyncio
+async def test_ingestion_limit_selects_a_deterministic_subset(tmp_path: Path) -> None:
+    write_transcript(tmp_path, "z-guest")
+    write_transcript(tmp_path, "a-guest")
+
+    class RecordingRepository:
+        def __init__(self) -> None:
+            self.sources = []
+
+        async def checksum_for(self, source_key):
+            return None
+
+        async def replace_source(self, document, chunks, embeddings):
+            self.sources.append(document.source_key)
+
+    repository = RecordingRepository()
+    service = IngestionService(
+        repository,
+        FakeEmbeddings(),
+        target_words=220,
+        overlap_words=40,
+    )
+
+    result = await service.ingest_repository(
+        tmp_path, repository_commit="abc123", max_transcripts=1
+    )
+
+    assert result.discovered == 1
+    assert repository.sources == ["a-guest"]
 
 
 @pytest.mark.asyncio

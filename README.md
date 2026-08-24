@@ -80,6 +80,14 @@ python -m lenny_api.knowledge.sync
 python -m lenny_api.knowledge.cli
 ```
 
+For a fast evaluator or low-storage bootstrap, index 25 transcripts first:
+
+```powershell
+python -m lenny_api.knowledge.cli --limit 25
+```
+
+The selection is deterministic. Running the command later without `--limit` incrementally fills the complete archive; previously indexed transcripts are checksum-skipped rather than embedded again. `--limit` reduces initial indexing time and database usage, but it does not reduce the Ollama model download size.
+
 Ingestion is incremental. Each source stores its repository path, repository commit, and SHA-256 content checksum. Unchanged transcripts are skipped; changed transcripts replace their chunks atomically. The default chunk profile is 220 words with 40 words of overlap, embedded using `nomic-embed-text` through Ollama.
 
 Retrieval can be inspected independently from generation through `POST /api/v1/retrieval/search`. It combines pgvector cosine similarity with PostgreSQL full-text ranking, returns episode metadata with every passage, and reports an empty evidence list when the configured grounding threshold is not met.

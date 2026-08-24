@@ -29,11 +29,16 @@ class IngestionService:
         self.embedding_batch_size = embedding_batch_size
 
     async def ingest_repository(
-        self, repository_root: Path, *, repository_commit: str | None
+        self,
+        repository_root: Path,
+        *,
+        repository_commit: str | None,
+        max_transcripts: int | None = None,
     ) -> IngestionResult:
         paths = discover_transcripts(repository_root)
+        selected_paths = paths[:max_transcripts] if max_transcripts is not None else paths
         indexed = skipped = failed = chunk_count = 0
-        for path in paths:
+        for path in selected_paths:
             try:
                 document = parse_transcript(
                     path,
@@ -75,7 +80,7 @@ class IngestionService:
                     error_type=type(exc).__name__,
                 )
         return IngestionResult(
-            discovered=len(paths),
+            discovered=len(selected_paths),
             indexed=indexed,
             skipped=skipped,
             failed=failed,
