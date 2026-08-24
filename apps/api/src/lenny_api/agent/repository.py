@@ -2,12 +2,12 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from sqlalchemy import func, select
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from lenny_api.agent.types import GenerationResult
 from lenny_api.knowledge.repository import RetrievedEvidence
+from lenny_api.persistence.errors import DATABASE_OPERATION_ERRORS
 from lenny_api.persistence.models import CitationRecord, MessageRecord, SessionRecord
 from lenny_api.sessions.exceptions import PersistenceUnavailableError, SessionNotFoundError
 
@@ -29,7 +29,7 @@ class ConversationRepository:
                 .where(SessionRecord.id == session_id)
                 .options(selectinload(SessionRecord.messages))
             )
-        except SQLAlchemyError as exc:
+        except DATABASE_OPERATION_ERRORS as exc:
             raise PersistenceUnavailableError from exc
         if session is None:
             raise SessionNotFoundError(session_id)
@@ -84,7 +84,7 @@ class ConversationRepository:
             await self.db.refresh(user_message)
             await self.db.refresh(assistant_message)
             return PersistedTurn(user_message=user_message, assistant_message=assistant_message)
-        except SQLAlchemyError as exc:
+        except DATABASE_OPERATION_ERRORS as exc:
             await self.db.rollback()
             raise PersistenceUnavailableError from exc
 
@@ -92,4 +92,3 @@ class ConversationRepository:
 def _title_from(content: str, limit: int = 64) -> str:
     normalized = " ".join(content.split())
     return normalized if len(normalized) <= limit else f"{normalized[: limit - 1].rstrip()}…"
-

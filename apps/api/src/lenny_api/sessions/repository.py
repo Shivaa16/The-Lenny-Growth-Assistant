@@ -3,10 +3,10 @@ from typing import Protocol
 from uuid import UUID
 
 from sqlalchemy import delete, func, select
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from lenny_api.persistence.errors import DATABASE_OPERATION_ERRORS
 from lenny_api.persistence.models import MessageRecord, SessionRecord
 from lenny_api.sessions.exceptions import PersistenceUnavailableError
 
@@ -39,7 +39,7 @@ class SqlAlchemySessionRepository:
             await self.db.commit()
             await self.db.refresh(record)
             return record
-        except SQLAlchemyError as exc:
+        except DATABASE_OPERATION_ERRORS as exc:
             await self.db.rollback()
             raise PersistenceUnavailableError from exc
 
@@ -60,7 +60,7 @@ class SqlAlchemySessionRepository:
                 .where(SessionRecord.user_id == user_id)
             )
             return records.all(), int(total or 0)
-        except SQLAlchemyError as exc:
+        except DATABASE_OPERATION_ERRORS as exc:
             raise PersistenceUnavailableError from exc
 
     async def get(
@@ -71,7 +71,7 @@ class SqlAlchemySessionRepository:
             query = query.options(selectinload(SessionRecord.messages))
         try:
             return await self.db.scalar(query)
-        except SQLAlchemyError as exc:
+        except DATABASE_OPERATION_ERRORS as exc:
             raise PersistenceUnavailableError from exc
 
     async def save(self, record: SessionRecord) -> SessionRecord:
@@ -80,7 +80,7 @@ class SqlAlchemySessionRepository:
             await self.db.commit()
             await self.db.refresh(record)
             return record
-        except SQLAlchemyError as exc:
+        except DATABASE_OPERATION_ERRORS as exc:
             await self.db.rollback()
             raise PersistenceUnavailableError from exc
 
@@ -91,7 +91,7 @@ class SqlAlchemySessionRepository:
             )
             await self.db.commit()
             return bool(result.rowcount)
-        except SQLAlchemyError as exc:
+        except DATABASE_OPERATION_ERRORS as exc:
             await self.db.rollback()
             raise PersistenceUnavailableError from exc
 
@@ -104,6 +104,6 @@ class SqlAlchemySessionRepository:
             await self.db.commit()
             await self.db.refresh(record)
             return record
-        except SQLAlchemyError as exc:
+        except DATABASE_OPERATION_ERRORS as exc:
             await self.db.rollback()
             raise PersistenceUnavailableError from exc

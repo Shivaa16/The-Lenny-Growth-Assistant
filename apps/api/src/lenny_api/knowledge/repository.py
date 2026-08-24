@@ -4,10 +4,10 @@ from uuid import UUID
 
 from sqlalchemy import delete, func, select
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from lenny_api.knowledge.types import TranscriptChunk, TranscriptDocument
+from lenny_api.persistence.errors import DATABASE_OPERATION_ERRORS
 from lenny_api.persistence.models import ChunkRecord, SourceRecord
 from lenny_api.sessions.exceptions import PersistenceUnavailableError
 
@@ -36,7 +36,7 @@ class KnowledgeRepository:
             return await self.db.scalar(
                 select(SourceRecord.content_checksum).where(SourceRecord.source_key == source_key)
             )
-        except SQLAlchemyError as exc:
+        except DATABASE_OPERATION_ERRORS as exc:
             raise PersistenceUnavailableError from exc
 
     async def replace_source(
@@ -100,7 +100,7 @@ class KnowledgeRepository:
                 ]
             )
             await self.db.commit()
-        except SQLAlchemyError as exc:
+        except DATABASE_OPERATION_ERRORS as exc:
             await self.db.rollback()
             raise PersistenceUnavailableError from exc
 
@@ -133,7 +133,6 @@ class KnowledgeRepository:
         )
         try:
             rows = (await self.db.execute(statement)).all()
-        except SQLAlchemyError as exc:
+        except DATABASE_OPERATION_ERRORS as exc:
             raise PersistenceUnavailableError from exc
         return [RetrievedEvidence(**row._mapping) for row in rows]
-

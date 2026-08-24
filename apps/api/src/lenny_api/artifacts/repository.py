@@ -1,9 +1,9 @@
 from uuid import UUID
 
 from sqlalchemy import select
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from lenny_api.persistence.errors import DATABASE_OPERATION_ERRORS
 from lenny_api.persistence.models import ArtifactRecord, SessionRecord
 from lenny_api.sessions.exceptions import PersistenceUnavailableError, SessionNotFoundError
 
@@ -15,7 +15,7 @@ class ArtifactRepository:
     async def require_session(self, session_id: UUID) -> SessionRecord:
         try:
             session = await self.db.get(SessionRecord, session_id)
-        except SQLAlchemyError as exc:
+        except DATABASE_OPERATION_ERRORS as exc:
             raise PersistenceUnavailableError from exc
         if session is None:
             raise SessionNotFoundError(session_id)
@@ -27,14 +27,14 @@ class ArtifactRepository:
             await self.db.commit()
             await self.db.refresh(artifact)
             return artifact
-        except SQLAlchemyError as exc:
+        except DATABASE_OPERATION_ERRORS as exc:
             await self.db.rollback()
             raise PersistenceUnavailableError from exc
 
     async def get(self, artifact_id: UUID) -> ArtifactRecord | None:
         try:
             return await self.db.get(ArtifactRecord, artifact_id)
-        except SQLAlchemyError as exc:
+        except DATABASE_OPERATION_ERRORS as exc:
             raise PersistenceUnavailableError from exc
 
     async def list_for_session(self, session_id: UUID) -> list[ArtifactRecord]:
@@ -46,5 +46,5 @@ class ArtifactRepository:
                 .order_by(ArtifactRecord.updated_at.desc())
             )
             return list(result)
-        except SQLAlchemyError as exc:
+        except DATABASE_OPERATION_ERRORS as exc:
             raise PersistenceUnavailableError from exc

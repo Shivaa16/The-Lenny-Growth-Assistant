@@ -97,6 +97,8 @@ Invoke-RestMethod http://localhost:5173/health/ready
 
 Both application containers use health checks and restart policies. Nginx adds baseline response-security headers and gives long local-model generations a bounded proxy timeout.
 
+Database connection failures—including raw driver-level connection refusals—are normalized to a structured `503 persistence_unavailable` response. Expected dependency outages therefore produce concise warning logs and actionable UI states rather than internal stack traces.
+
 After the services report healthy, run the evaluator smoke test through the public web endpoint:
 
 ```powershell

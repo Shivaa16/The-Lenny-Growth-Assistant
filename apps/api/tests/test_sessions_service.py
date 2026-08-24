@@ -1,12 +1,14 @@
 from collections.abc import Sequence
 from datetime import UTC, datetime
+from unittest.mock import AsyncMock
 from uuid import UUID, uuid4
 
 import pytest
 
 from lenny_api.config import Settings
 from lenny_api.persistence.models import MessageRecord, SessionRecord
-from lenny_api.sessions.exceptions import SessionNotFoundError
+from lenny_api.sessions.exceptions import PersistenceUnavailableError, SessionNotFoundError
+from lenny_api.sessions.repository import SqlAlchemySessionRepository
 from lenny_api.sessions.schemas import CreateMessageRequest, CreateSessionRequest
 from lenny_api.sessions.service import SessionService
 
@@ -32,7 +34,6 @@ class InMemorySessionRepository:
         self.sessions[record.id] = record
         self.messages[record.id] = []
         return record
-
     async def list_for_user(
         self, user_id: str, *, limit: int, offset: int
     ) -> tuple[Sequence[SessionRecord], int]:
@@ -62,6 +63,16 @@ class InMemorySessionRepository:
         self.stamp(record)
         self.messages[record.session_id].append(record)
         return record
+
+
+@pytest.mark.asyncio
+async def test_raw_driver_connection_failure_is_normalized() -> None:
+    db = AsyncMock()
+    db.scalars.side_effect = ConnectionRefusedError("database is offline")
+    repository = SqlAlchemySessionRepository(db)
+
+    with pytest.raises(PersistenceUnavailableError):
+        await repository.list_for_user("local-evaluator", limit=30, offset=0)
 
 
 @pytest.fixture
