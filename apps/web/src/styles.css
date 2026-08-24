@@ -141,7 +141,8 @@ button:focus-visible, textarea:focus-visible { outline: 3px solid rgba(49,95,206
   .suggestions { grid-template-columns: 1fr; }
   .suggestions button { min-height: auto; }
   .composer-wrap { width: calc(100% - 28px); margin-bottom: 14px; }
-  .artifact-actions .artifact-action:last-child { display: none; }
+  .artifact-actions { gap: 4px; }
+  .composer-footer .artifact-action { padding-inline: 8px; }
   .artifact-viewer { position: fixed; z-index: 40; inset: 0; height: 100dvh; padding: 14px; }
   .artifact-canvas iframe { min-height: calc(100dvh - 150px); }
   .markdown-artifact { padding: 28px 22px; }
