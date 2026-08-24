@@ -4,7 +4,17 @@ An AI-powered research and writing assistant grounded in transcripts from Lenny'
 
 ## Project status
 
-Milestone 1 establishes the product brief and application foundation. Transcript ingestion, retrieval, agent routing, persistence, and the complete interface will be added incrementally.
+Milestones 1–5 are complete: product foundation, persistent conversations, transcript ingestion and hybrid retrieval, provider-neutral grounded agents, and the Ship 30 artifact studio. Remaining work focuses on the reproducible end-to-end runtime and final evaluation polish.
+
+## Visual direction
+
+The interface uses a restrained white-and-blue product system designed for long research and writing sessions:
+
+- near-white content canvas with flat white working surfaces
+- navy session navigation for clear information hierarchy
+- one consistent blue accent for actions, focus, citations, and provider status
+- subtle neutral borders and shadows instead of decorative gradients or visual effects
+- responsive chat and artifact layouts with accessible contrast and visible keyboard focus
 
 ## Architecture
 

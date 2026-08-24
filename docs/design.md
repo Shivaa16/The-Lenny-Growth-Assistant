@@ -8,6 +8,10 @@
 - Failure is a product state: unavailable models, empty evidence, and timeouts receive clear recovery guidance.
 - Calm density: prioritize readable research and writing over dashboard decoration.
 
+## Visual system
+
+The visual language is deliberately closer to a professional research tool than an AI showcase. A near-white slate canvas and white content surfaces reduce fatigue, navy navigation establishes hierarchy, and a single medium-blue accent identifies interactive and evidence-related elements. Decorative gradients, glow effects, and unnecessary texture are excluded. Borders and shadows remain subtle so transcript evidence and generated writing carry the visual weight.
+
 ## Information architecture
 
 - Session rail: new chat and previous conversations
@@ -41,4 +45,3 @@ Desktop uses a session rail, chat column, and optional artifact pane. Tablet col
 - Color contrast meeting WCAG AA
 - No meaning communicated by color alone
 - Reduced-motion support
-
