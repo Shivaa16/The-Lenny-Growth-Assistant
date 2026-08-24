@@ -2,13 +2,17 @@ from contextlib import asynccontextmanager
 from uuid import uuid4
 
 import structlog
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response, status
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from lenny_api.config import get_settings
 from lenny_api.logging import configure_logging
+from lenny_api.persistence.database import database_is_ready, dispose_engine
 from lenny_api.schemas import ErrorResponse, HealthResponse, ProviderInfo
+from lenny_api.sessions.exceptions import PersistenceUnavailableError, SessionNotFoundError
+from lenny_api.sessions.router import router as sessions_router
 
 settings = get_settings()
 configure_logging(settings.log_level)
@@ -24,6 +28,7 @@ async def lifespan(_: FastAPI):
         model=settings.active_model,
     )
     yield
+    await dispose_engine()
     logger.info("application_stopped")
 
 
@@ -41,11 +46,13 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PATCH", "DELETE"],
     allow_headers=["Content-Type", "Authorization", "X-Request-ID"],
 )
+app.include_router(sessions_router)
 
 
 @app.middleware("http")
 async def request_context(request: Request, call_next):
     request_id = request.headers.get("X-Request-ID", str(uuid4()))
+    request.state.request_id = request_id
     structlog.contextvars.clear_contextvars()
     structlog.contextvars.bind_contextvars(request_id=request_id, path=request.url.path)
     response = await call_next(request)
@@ -53,20 +60,64 @@ async def request_context(request: Request, call_next):
     return response
 
 
+def error_response(request: Request, *, status_code: int, code: str, message: str) -> JSONResponse:
+    request_id = getattr(request.state, "request_id", "unknown")
+    payload = ErrorResponse.model_validate(
+        {"error": {"code": code, "message": message, "request_id": request_id}}
+    )
+    return JSONResponse(
+        status_code=status_code,
+        content=payload.model_dump(),
+        headers={"X-Request-ID": request_id},
+    )
+
+
+@app.exception_handler(SessionNotFoundError)
+async def session_not_found(request: Request, exc: SessionNotFoundError) -> JSONResponse:
+    return error_response(
+        request,
+        status_code=status.HTTP_404_NOT_FOUND,
+        code="session_not_found",
+        message=f"Session {exc.session_id} was not found.",
+    )
+
+
+@app.exception_handler(PersistenceUnavailableError)
+async def persistence_unavailable(
+    request: Request, _: PersistenceUnavailableError
+) -> JSONResponse:
+    logger.warning("persistence_unavailable")
+    return error_response(
+        request,
+        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+        code="persistence_unavailable",
+        message="Conversation storage is temporarily unavailable. Please retry shortly.",
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_error(request: Request, exc: RequestValidationError) -> JSONResponse:
+    first_error = exc.errors()[0] if exc.errors() else {}
+    location = ".".join(str(part) for part in first_error.get("loc", []) if part != "body")
+    detail = first_error.get("msg", "Invalid request")
+    message = f"{location}: {detail}" if location else detail
+    return error_response(
+        request,
+        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+        code="validation_error",
+        message=message,
+    )
+
+
 @app.exception_handler(Exception)
 async def unhandled_exception(request: Request, exc: Exception) -> JSONResponse:
-    request_id = request.headers.get("X-Request-ID", "unknown")
     logger.exception("unhandled_exception", error_type=type(exc).__name__)
-    payload = ErrorResponse.model_validate(
-        {
-            "error": {
-                "code": "internal_error",
-                "message": "The service encountered an unexpected error.",
-                "request_id": request_id,
-            }
-        }
+    return error_response(
+        request,
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        code="internal_error",
+        message="The service encountered an unexpected error.",
     )
-    return JSONResponse(status_code=500, content=payload.model_dump())
 
 
 @app.get("/health/live", response_model=HealthResponse, tags=["health"])
@@ -75,9 +126,12 @@ async def liveness() -> HealthResponse:
 
 
 @app.get("/health/ready", response_model=HealthResponse, tags=["health"])
-async def readiness() -> HealthResponse:
-    # Dependency-specific checks are added with persistence and model adapters.
-    return HealthResponse(status="ok", service="lenny-growth-api", version=app.version)
+async def readiness(response: Response) -> HealthResponse:
+    ready = await database_is_ready()
+    response_status = "ok" if ready else "degraded"
+    if not ready:
+        response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+    return HealthResponse(status=response_status, service="lenny-growth-api", version=app.version)
 
 
 @app.get("/api/v1/config", response_model=ProviderInfo, tags=["configuration"])
@@ -89,4 +143,3 @@ async def provider_config() -> ProviderInfo:
         embedding_model=settings.ollama_embedding_model,
         cloud_configured=settings.cloud_configured,
     )
-

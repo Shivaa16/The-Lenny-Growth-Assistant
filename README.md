@@ -29,5 +29,35 @@ Milestone 1 establishes the product brief and application foundation. Transcript
 - Ollama
 - A PostgreSQL database (Supabase is supported)
 
-Setup and run instructions will be completed as the application foundation is wired.
+## Run the persistent conversation milestone
 
+1. Copy `.env.example` to `.env` and set `DATABASE_URL` to a PostgreSQL connection string.
+2. Install the API and run the migration:
+
+   ```powershell
+   cd apps/api
+   python -m pip install -e ".[dev]"
+   alembic upgrade head
+   uvicorn lenny_api.main:app --reload
+   ```
+
+3. In a second terminal, start the web application:
+
+   ```powershell
+   cd apps/web
+   pnpm install
+   pnpm run dev
+   ```
+
+The evaluator path is `docker compose up --build`. It starts PostgreSQL, applies migrations, and serves the API and web application. Ollama stays on the host so it can use the laptop GPU.
+
+## Quality gates
+
+```powershell
+cd apps/api
+pytest
+ruff check src tests migrations
+
+cd ../web
+pnpm run build
+```

@@ -9,32 +9,32 @@ importers:
   .:
     dependencies:
       '@vitejs/plugin-react':
-        specifier: latest
+        specifier: 6.1.0
         version: 6.1.0(vite@8.2.2)
       lucide-react:
-        specifier: latest
+        specifier: 1.33.0
         version: 1.33.0(react@19.2.8)
       react:
-        specifier: latest
+        specifier: 19.2.8
         version: 19.2.8
       react-dom:
-        specifier: latest
+        specifier: 19.2.8
         version: 19.2.8(react@19.2.8)
       typescript:
-        specifier: latest
+        specifier: 7.0.2
         version: 7.0.2
       vite:
-        specifier: latest
+        specifier: 8.2.2
         version: 8.2.2
     devDependencies:
       '@types/react':
-        specifier: latest
+        specifier: 19.2.18
         version: 19.2.18
       '@types/react-dom':
-        specifier: latest
+        specifier: 19.2.4
         version: 19.2.4(@types/react@19.2.18)
       vitest:
-        specifier: latest
+        specifier: 4.1.11
         version: 4.1.11(vite@8.2.2)
 
 packages:

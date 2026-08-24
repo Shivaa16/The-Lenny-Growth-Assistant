@@ -24,6 +24,14 @@ The browser communicates only with the FastAPI service. FastAPI owns validation,
 - `POST /api/v1/sessions/{id}/messages`: send a message and stream/receive a response
 - `GET /api/v1/artifacts/{id}`: retrieve a stored artifact
 
+## Implemented persistence boundary
+
+Conversation persistence follows a layered dependency flow:
+
+`FastAPI router -> SessionService -> SessionRepository protocol -> SQLAlchemy repository -> PostgreSQL`
+
+The service depends on a repository protocol rather than SQLAlchemy directly. This keeps product rules testable without a database and allows the persistence adapter to evolve independently. All write operations commit atomically and roll back before returning a normalized `persistence_unavailable` error.
+
 ## Data model
 
 - `users`: lightweight evaluator metadata; authentication is out of scope
@@ -57,4 +65,3 @@ The browser communicates only with the FastAPI service. FastAPI owns validation,
 ## Deployment topology
 
 The evaluator profile uses Docker Compose for the API, web application, and PostgreSQL. Ollama can run on the host to use the laptop GPU. The low-storage developer profile runs web and API processes directly and connects to Supabase PostgreSQL.
-

@@ -26,3 +26,15 @@ def test_provider_config_hides_secrets() -> None:
     assert body["model"] == "qwen2.5:3b"
     assert "database_url" not in body
     assert "anthropic_api_key" not in body
+
+
+def test_readiness_reports_database_outage(monkeypatch) -> None:
+    async def unavailable() -> bool:
+        return False
+
+    monkeypatch.setattr("lenny_api.main.database_is_ready", unavailable)
+
+    response = client.get("/health/ready")
+
+    assert response.status_code == 503
+    assert response.json()["status"] == "degraded"
