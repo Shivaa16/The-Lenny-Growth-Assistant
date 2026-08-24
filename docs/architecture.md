@@ -52,6 +52,16 @@ The service depends on a repository protocol rather than SQLAlchemy directly. Th
 6. Pass selected evidence to the agent as untrusted, citable context.
 7. Validate structured citations against the selected chunk IDs.
 
+### Ingestion and refresh
+
+The transcript source is a shallow, locally cached checkout of the assignment-linked ChatPRD repository. Each `episodes/{guest}/transcript.md` file is parsed from YAML frontmatter, normalized, hashed, and split into deterministic overlapping word windows. Sources retain the repository-relative path, Git commit, and SHA-256 checksum so every answer can be traced to an exact indexed version.
+
+Refresh is idempotent: unchanged checksums are skipped. A changed transcript is embedded first, then its source metadata and complete chunk set are replaced in one database transaction. Ollama or database outages fail fast rather than silently leaving a partially refreshed source.
+
+### Hybrid retrieval
+
+Every chunk has a 768-dimensional `nomic-embed-text` vector and a generated PostgreSQL English `tsvector`. Retrieval weights cosine similarity at 75% and capped keyword relevance at 25%, then applies the configured minimum score. The independent retrieval endpoint makes evidence selection observable and testable before answer generation is introduced.
+
 ## Security
 
 - Secrets are loaded from environment variables and never returned to the browser.

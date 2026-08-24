@@ -8,6 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from lenny_api.config import get_settings
+from lenny_api.knowledge.embeddings import EmbeddingProviderError
+from lenny_api.knowledge.router import router as knowledge_router
 from lenny_api.logging import configure_logging
 from lenny_api.persistence.database import database_is_ready, dispose_engine
 from lenny_api.schemas import ErrorResponse, HealthResponse, ProviderInfo
@@ -47,6 +49,7 @@ app.add_middleware(
     allow_headers=["Content-Type", "Authorization", "X-Request-ID"],
 )
 app.include_router(sessions_router)
+app.include_router(knowledge_router)
 
 
 @app.middleware("http")
@@ -92,6 +95,17 @@ async def persistence_unavailable(
         status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
         code="persistence_unavailable",
         message="Conversation storage is temporarily unavailable. Please retry shortly.",
+    )
+
+
+@app.exception_handler(EmbeddingProviderError)
+async def embedding_unavailable(request: Request, _: EmbeddingProviderError) -> JSONResponse:
+    logger.warning("embedding_provider_unavailable")
+    return error_response(
+        request,
+        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+        code="embedding_provider_unavailable",
+        message="The local embedding model is unavailable. Start Ollama and retry.",
     )
 
 

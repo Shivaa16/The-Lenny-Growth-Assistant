@@ -29,11 +29,16 @@ class Settings(BaseSettings):
     ollama_base_url: HttpUrl = HttpUrl("http://localhost:11434")
     ollama_chat_model: str = "qwen2.5:3b"
     ollama_embedding_model: str = "nomic-embed-text"
+    embedding_dimension: int = Field(default=768, ge=128, le=4096)
     anthropic_api_key: SecretStr | None = None
     anthropic_model: str | None = None
 
     retrieval_top_k: int = Field(default=6, ge=1, le=20)
     retrieval_score_threshold: float = Field(default=0.35, ge=0, le=1)
+    transcript_source_dir: str = "data/lennys-podcast-transcripts"
+    transcript_repository_url: str = "https://github.com/ChatPRD/lennys-podcast-transcripts.git"
+    chunk_target_words: int = Field(default=220, ge=80, le=500)
+    chunk_overlap_words: int = Field(default=40, ge=0, le=120)
 
     @property
     def active_model(self) -> str:
@@ -49,4 +54,3 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
-

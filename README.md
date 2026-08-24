@@ -51,6 +51,20 @@ Milestone 1 establishes the product brief and application foundation. Transcript
 
 The evaluator path is `docker compose up --build`. It starts PostgreSQL, applies migrations, and serves the API and web application. Ollama stays on the host so it can use the laptop GPU.
 
+## Build the transcript index
+
+The source is the assignment-linked [ChatPRD transcript archive](https://github.com/ChatPRD/lennys-podcast-transcripts). The sync command creates a shallow checkout and refuses to overwrite a directory with a different Git origin.
+
+```powershell
+cd apps/api
+python -m lenny_api.knowledge.sync
+python -m lenny_api.knowledge.cli
+```
+
+Ingestion is incremental. Each source stores its repository path, repository commit, and SHA-256 content checksum. Unchanged transcripts are skipped; changed transcripts replace their chunks atomically. The default chunk profile is 220 words with 40 words of overlap, embedded using `nomic-embed-text` through Ollama.
+
+Retrieval can be inspected independently from generation through `POST /api/v1/retrieval/search`. It combines pgvector cosine similarity with PostgreSQL full-text ranking, returns episode metadata with every passage, and reports an empty evidence list when the configured grounding threshold is not met.
+
 ## Quality gates
 
 ```powershell
