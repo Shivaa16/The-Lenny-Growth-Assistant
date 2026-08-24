@@ -1,4 +1,5 @@
 # Agent transcripts
 
-Sanitized development transcripts and decision logs will be stored here before submission. Secrets, environment values, personal paths, and unrelated private information must be removed before commit.
+This folder contains sanitized development transcripts and decision logs, including failed attempts and their corrections. Secrets, environment values, personal paths, and unrelated private information are removed before commit.
 
+- [`development-log.md`](development-log.md): milestone decisions, failures, corrections, and verification

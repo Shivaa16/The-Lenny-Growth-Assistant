@@ -106,7 +106,7 @@ These exclusions keep the submission focused on grounding, operability, and a po
 
 - Hallucination: constrain synthesis to retrieved passages, require citations, and test unsupported questions.
 - Local-model quality: use a narrow system contract, strong retrieval, structured outputs, and a visible optional Claude provider.
-- Latency: retrieve a small evidence set, stream generation, and keep the local context budget bounded.
+- Latency: retrieve a small evidence set, bound generation with a timeout, and keep session context limited.
 - Cost: local generation is the default; cloud usage is opt-in.
 - Data leakage: do not send transcripts to cloud providers unless the evaluator explicitly selects cloud mode.
 - Prompt injection in transcripts: label retrieved text as untrusted evidence and prohibit it from changing system behavior.
@@ -122,4 +122,3 @@ These exclusions keep the submission focused on grounding, operability, and a po
 5. Ship 30 skill and artifact contracts
 6. Polished frontend and safe viewer
 7. Automated evaluation, operational hardening, and handoff
-

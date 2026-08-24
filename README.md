@@ -4,7 +4,7 @@ An AI-powered research and writing assistant grounded in transcripts from Lenny'
 
 ## Project status
 
-Milestones 1–6 are complete: product foundation, persistent conversations, transcript ingestion and hybrid retrieval, provider-neutral grounded agents, the Ship 30 artifact studio, and the reproducible runtime/quality workflow. The remaining milestone is the final submission audit and demo preparation.
+All seven implementation milestones are complete. Final submission still requires the submitter-controlled checks listed in [`docs/evaluation.md`](docs/evaluation.md), including a live Docker/Ollama smoke run and the camera-on YouTube demo.
 
 ## Visual direction
 
@@ -25,6 +25,31 @@ The interface uses a restrained white-and-blue product system designed for long 
 - `agent-transcripts`: sanitized AI-assisted development logs
 
 For the evaluator startup sequence and recovery guidance, see [`docs/runbook.md`](docs/runbook.md).
+
+Evaluator materials:
+
+- [`docs/evaluation.md`](docs/evaluation.md): requirement mapping and honest submission blockers
+- [`docs/manual-test-plan.md`](docs/manual-test-plan.md): primary, failure, persistence, responsive, and accessibility checks
+- [`docs/demo-script.md`](docs/demo-script.md): timed 2–3 minute camera-on walkthrough
+- [`agent-transcripts/development-log.md`](agent-transcripts/development-log.md): sanitized AI-assisted decisions and corrections
+
+## Environment variables
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `DATABASE_URL` | Yes | Async PostgreSQL connection; pgvector must be available |
+| `LLM_PROVIDER` | Yes | `ollama` for the local demo or `anthropic` for cloud generation |
+| `OLLAMA_BASE_URL` | Ollama | Host URL; Compose supplies its container-safe value |
+| `OLLAMA_CHAT_MODEL` | Ollama | Local generation model, default `qwen2.5:3b` |
+| `OLLAMA_EMBEDDING_MODEL` | Yes | Retrieval embeddings, default `nomic-embed-text` |
+| `ANTHROPIC_API_KEY` | Anthropic | Optional cloud credential; never returned to the browser |
+| `ANTHROPIC_MODEL` | Anthropic | Claude model identifier selected by the evaluator |
+| `ANTHROPIC_MAX_BUDGET_USD` | No | Per-request Claude Agent SDK budget guard |
+| `GENERATION_TIMEOUT_SECONDS` | No | Provider timeout, default 90 seconds |
+| `RETRIEVAL_SCORE_THRESHOLD` | No | Minimum evidence score before generation |
+| `TRANSCRIPT_SOURCE_DIR` | No | Local shallow transcript checkout |
+
+Switching providers requires environment configuration only. Restart the API after changing `LLM_PROVIDER`; `/api/v1/config` and the UI badge expose the active provider/model without revealing credentials. Ollama remains mandatory for embeddings in both modes.
 
 ## Low-storage development profile
 

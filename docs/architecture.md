@@ -4,7 +4,7 @@
 
 The browser communicates only with the FastAPI service. FastAPI owns validation, session orchestration, retrieval, provider selection, persistence, sanitization, and error normalization. PostgreSQL stores application records and vector embeddings. Ollama runs as a separate local service; Anthropic is an optional cloud provider.
 
-## Planned components
+## Component boundaries
 
 - API layer: versioned HTTP contracts, validation, health endpoints, and structured errors
 - Session service: session lifecycle and contextual message history
@@ -14,7 +14,7 @@ The browser communicates only with the FastAPI service. FastAPI owns validation,
 - Artifact service: typed Markdown/HTML payloads, sanitization, and persistence
 - Ingestion worker: transcript parsing, chunking, embedding, refresh, and source traceability
 
-## Initial API surface
+## API surface
 
 - `GET /health/live`: process liveness
 - `GET /health/ready`: dependency readiness
@@ -36,8 +36,7 @@ The service depends on a repository protocol rather than SQLAlchemy directly. Th
 
 ## Data model
 
-- `users`: lightweight evaluator metadata; authentication is out of scope
-- `sessions`: ID, user ID, title, provider, model, created/updated timestamps
+- `sessions`: ID, lightweight evaluator user ID, title, provider, model, created/updated timestamps; authentication is out of scope
 - `messages`: session ID, role, content, status, timestamps, model metadata
 - `sources`: episode identity, title, guest, publication date, URL, transcript checksum
 - `chunks`: source ID, ordinal, content, token count, embedding, metadata
