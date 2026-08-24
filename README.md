@@ -4,7 +4,7 @@ An AI-powered research and writing assistant grounded in transcripts from Lenny'
 
 ## Project status
 
-Milestones 1–5 are complete: product foundation, persistent conversations, transcript ingestion and hybrid retrieval, provider-neutral grounded agents, and the Ship 30 artifact studio. Remaining work focuses on the reproducible end-to-end runtime and final evaluation polish.
+Milestones 1–6 are complete: product foundation, persistent conversations, transcript ingestion and hybrid retrieval, provider-neutral grounded agents, the Ship 30 artifact studio, and the reproducible runtime/quality workflow. The remaining milestone is the final submission audit and demo preparation.
 
 ## Visual direction
 
@@ -23,6 +23,8 @@ The interface uses a restrained white-and-blue product system designed for long 
 - `docs`: product, design, and architecture decisions
 - `infra`: local infrastructure configuration
 - `agent-transcripts`: sanitized AI-assisted development logs
+
+For the evaluator startup sequence and recovery guidance, see [`docs/runbook.md`](docs/runbook.md).
 
 ## Low-storage development profile
 
