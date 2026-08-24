@@ -48,6 +48,9 @@ class SessionRecord(TimestampMixin, Base):
     messages: Mapped[list["MessageRecord"]] = relationship(
         back_populates="session", cascade="all, delete-orphan", passive_deletes=True
     )
+    artifacts: Mapped[list["ArtifactRecord"]] = relationship(
+        back_populates="session", cascade="all, delete-orphan", passive_deletes=True
+    )
 
 
 class MessageRecord(Base):
@@ -159,3 +162,26 @@ class CitationRecord(Base):
 
     message: Mapped[MessageRecord] = relationship(back_populates="citations")
     chunk: Mapped[ChunkRecord] = relationship(back_populates="citations")
+
+
+class ArtifactRecord(TimestampMixin, Base):
+    __tablename__ = "artifacts"
+    __table_args__ = (
+        CheckConstraint("kind IN ('markdown', 'html')", name="ck_artifacts_kind"),
+        Index("ix_artifacts_session_updated", "session_id", "updated_at"),
+    )
+
+    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
+    session_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True), ForeignKey("sessions.id", ondelete="CASCADE"), nullable=False
+    )
+    message_id: Mapped[UUID | None] = mapped_column(
+        PGUUID(as_uuid=True), ForeignKey("messages.id", ondelete="SET NULL")
+    )
+    kind: Mapped[str] = mapped_column(String(16), nullable=False)
+    title: Mapped[str] = mapped_column(String(200), nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    sanitized_content: Mapped[str] = mapped_column(Text, nullable=False)
+    artifact_metadata: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False, default=dict)
+
+    session: Mapped[SessionRecord] = relationship(back_populates="artifacts")

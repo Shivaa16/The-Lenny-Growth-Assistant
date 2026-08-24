@@ -49,6 +49,28 @@ export type ProviderInfo = {
   cloud_configured: boolean;
 };
 
+export type Artifact = {
+  id: string;
+  session_id: string;
+  message_id: string | null;
+  kind: "markdown" | "html";
+  title: string;
+  content: string;
+  sanitized_content: string;
+  artifact_metadata: {
+    skill?: string;
+    citations?: Array<{
+      position: number;
+      title: string;
+      guest: string;
+      youtube_url: string | null;
+    }>;
+    [key: string]: unknown;
+  };
+  created_at: string;
+  updated_at: string;
+};
+
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -102,3 +124,16 @@ export const addMessage = (sessionId: string, content: string): Promise<Conversa
     method: "POST",
     body: JSON.stringify({ content })
   });
+
+export const createArtifact = (
+  sessionId: string,
+  topic: string,
+  kind: Artifact["kind"] = "markdown"
+): Promise<Artifact> =>
+  request(`/api/v1/sessions/${sessionId}/artifacts`, {
+    method: "POST",
+    body: JSON.stringify({ topic, kind })
+  });
+
+export const listArtifacts = (sessionId: string): Promise<{ items: Artifact[] }> =>
+  request(`/api/v1/sessions/${sessionId}/artifacts`);

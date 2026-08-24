@@ -8,6 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from lenny_api.agent.types import GenerationProviderError
+from lenny_api.artifacts.exceptions import ArtifactNotFoundError
+from lenny_api.artifacts.router import router as artifacts_router
 from lenny_api.config import get_settings
 from lenny_api.knowledge.embeddings import EmbeddingProviderError
 from lenny_api.knowledge.router import router as knowledge_router
@@ -51,6 +53,7 @@ app.add_middleware(
 )
 app.include_router(sessions_router)
 app.include_router(knowledge_router)
+app.include_router(artifacts_router)
 
 
 @app.middleware("http")
@@ -83,6 +86,16 @@ async def session_not_found(request: Request, exc: SessionNotFoundError) -> JSON
         status_code=status.HTTP_404_NOT_FOUND,
         code="session_not_found",
         message=f"Session {exc.session_id} was not found.",
+    )
+
+
+@app.exception_handler(ArtifactNotFoundError)
+async def artifact_not_found(request: Request, exc: ArtifactNotFoundError) -> JSONResponse:
+    return error_response(
+        request,
+        status_code=status.HTTP_404_NOT_FOUND,
+        code="artifact_not_found",
+        message=f"Artifact {exc.artifact_id} was not found.",
     )
 
 

@@ -4,11 +4,14 @@ import { FormEvent, useCallback, useEffect, useState } from "react";
 import {
   addMessage,
   ApiError,
+  Artifact,
   ConversationTurn,
+  createArtifact,
   createSession,
   getProviderInfo,
   getSession,
   listSessions,
+  listArtifacts,
   Message,
   ProviderInfo,
   SessionSummary
@@ -31,6 +34,10 @@ export function App() {
   const [isResponding, setIsResponding] = useState(false);
   const [isMobileRailOpen, setIsMobileRailOpen] = useState(false);
   const [providerInfo, setProviderInfo] = useState<ProviderInfo | null>(null);
+  const [artifacts, setArtifacts] = useState<Artifact[]>([]);
+  const [activeArtifact, setActiveArtifact] = useState<Artifact | null>(null);
+  const [isArtifactOpen, setIsArtifactOpen] = useState(false);
+  const [isGeneratingArtifact, setIsGeneratingArtifact] = useState(false);
 
   const refreshSessions = useCallback(async () => {
     try {
@@ -53,6 +60,9 @@ export function App() {
       setActiveSession(created);
       setTurn(null);
       setHistory([]);
+      setArtifacts([]);
+      setActiveArtifact(null);
+      setIsArtifactOpen(false);
       setStorageError(null);
     } catch (error) {
       setStorageError(error instanceof ApiError ? error.message : "Could not create a conversation.");
@@ -66,12 +76,50 @@ export function App() {
     setTurn(null);
     setIsMobileRailOpen(false);
     try {
-      const detail = await getSession(session.id);
+      const [detail, artifactList] = await Promise.all([
+        getSession(session.id),
+        listArtifacts(session.id)
+      ]);
       setHistory(detail.messages);
+      setArtifacts(artifactList.items);
+      setActiveArtifact(artifactList.items[0] ?? null);
       setStorageError(null);
     } catch (error) {
       setHistory([]);
       setStorageError(error instanceof ApiError ? error.message : "Could not load the conversation.");
+    }
+  }
+
+  async function generateShip30Artifact() {
+    let session = activeSession;
+    if (!session) {
+      try {
+        session = await createSession();
+        setSessions((current) => [session!, ...current]);
+        setActiveSession(session);
+      } catch (error) {
+        setStorageError(error instanceof ApiError ? error.message : "Could not create a conversation.");
+        return;
+      }
+    }
+    const latestUserMessage = [...history].reverse().find((message) => message.role === "user");
+    const topic = prompt.trim() || latestUserMessage?.content;
+    if (!topic) {
+      setStorageError("Enter a topic or ask a question before creating a Ship 30 essay.");
+      return;
+    }
+    setIsGeneratingArtifact(true);
+    setIsArtifactOpen(true);
+    try {
+      const artifact = await createArtifact(session.id, topic, "markdown");
+      setArtifacts((current) => [artifact, ...current]);
+      setActiveArtifact(artifact);
+      setPrompt("");
+      setStorageError(null);
+    } catch (error) {
+      setStorageError(error instanceof ApiError ? error.message : "Could not create the artifact.");
+    } finally {
+      setIsGeneratingArtifact(false);
     }
   }
 
@@ -126,11 +174,11 @@ export function App() {
         <div className="rail-footer"><div className="avatar">SK</div><div><strong>Local evaluator</strong><span>Development workspace</span></div></div>
       </aside>
 
-      <section className="workspace">
+      <section className={`workspace${isArtifactOpen ? " artifact-open" : ""}`}>
         <header className="topbar">
           <button className="mobile-menu" aria-label="Open conversations" onClick={() => setIsMobileRailOpen(true)}><Menu size={20} /></button>
           <div><p className="eyebrow">LENNY GROWTH ASSISTANT</p><h1>{activeSession?.title ?? "New conversation"}</h1></div>
-          <div className="topbar-actions"><span className="provider-pill"><span className="status-dot" /> {providerInfo ? `${providerInfo.provider === "ollama" ? "Local" : "Cloud"} · ${providerInfo.model}` : "Provider loading"}</span><button className="icon-button" aria-label="Open artifact viewer"><PanelRight size={19} /></button></div>
+          <div className="topbar-actions"><span className="provider-pill"><span className="status-dot" /> {providerInfo ? `${providerInfo.provider === "ollama" ? "Local" : "Cloud"} · ${providerInfo.model}` : "Provider loading"}</span><button className="icon-button" aria-label="Toggle artifact viewer" onClick={() => setIsArtifactOpen((current) => !current)}><PanelRight size={19} /></button></div>
         </header>
 
         {storageError && <div className="storage-alert" role="alert"><AlertCircle size={17} /><span>{storageError}</span><button onClick={() => void refreshSessions()}>Retry</button></div>}
@@ -178,8 +226,21 @@ export function App() {
           )}
         </div>
 
-        <div className="composer-wrap"><form className="composer" onSubmit={submit}><label className="sr-only" htmlFor="message">Ask about product or growth</label><textarea id="message" rows={2} value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="Ask about product, growth, or turn an answer into an artifact…" disabled={isResponding} /><div className="composer-footer"><span>Answers include transcript sources</span><button type="submit" aria-label="Send message" disabled={!prompt.trim() || isResponding}><ArrowUp size={18} /></button></div></form><p className="disclaimer">Grounded in indexed transcripts. Verify important decisions with the original episode.</p></div>
+        <div className="composer-wrap"><form className="composer" onSubmit={submit}><label className="sr-only" htmlFor="message">Ask about product or growth</label><textarea id="message" rows={2} value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="Ask about product, growth, or turn an answer into an artifact…" disabled={isResponding || isGeneratingArtifact} /><div className="composer-footer"><button className="artifact-action" type="button" onClick={() => void generateShip30Artifact()} disabled={isGeneratingArtifact}><FileText size={14} />{isGeneratingArtifact ? "Writing essay…" : "Ship 30 essay"}</button><button className="send-button" type="submit" aria-label="Send message" disabled={!prompt.trim() || isResponding || isGeneratingArtifact}><ArrowUp size={18} /></button></div></form><p className="disclaimer">Grounded in indexed transcripts. Verify important decisions with the original episode.</p></div>
       </section>
+      {isArtifactOpen && (
+        <aside className="artifact-viewer" aria-label="Artifact viewer">
+          <header className="artifact-header">
+            <div><p className="eyebrow">SHIP 30 FOR 30</p><h2>{activeArtifact?.title ?? "Artifact studio"}</h2></div>
+            <button className="icon-button" aria-label="Close artifact viewer" onClick={() => setIsArtifactOpen(false)}><X size={18} /></button>
+          </header>
+          {artifacts.length > 1 && <select className="artifact-select" aria-label="Choose artifact" value={activeArtifact?.id ?? ""} onChange={(event) => setActiveArtifact(artifacts.find((artifact) => artifact.id === event.target.value) ?? null)}>{artifacts.map((artifact) => <option value={artifact.id} key={artifact.id}>{artifact.title}</option>)}</select>}
+          <div className="artifact-canvas">
+            {isGeneratingArtifact ? <div className="artifact-empty"><Sparkles size={25} /><strong>Shaping your essay…</strong><p>Building a grounded hook, narrative, and takeaway.</p></div> : activeArtifact ? activeArtifact.kind === "html" ? <iframe title={activeArtifact.title} sandbox="" srcDoc={`<!doctype html><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:"><style>body{font:16px/1.7 system-ui;padding:32px;color:#18231f}article{max-width:720px;margin:auto}</style>${activeArtifact.sanitized_content}`} /> : <article className="markdown-artifact"><pre>{activeArtifact.sanitized_content}</pre></article> : <div className="artifact-empty"><FileText size={25} /><strong>No artifact selected</strong><p>Enter a topic and choose “Ship 30 essay” to create one.</p></div>}
+          </div>
+          {activeArtifact?.artifact_metadata.citations?.length ? <footer className="artifact-sources"><span>{activeArtifact.artifact_metadata.citations.length} transcript sources</span><span>Markdown · Safely rendered</span></footer> : null}
+        </aside>
+      )}
     </main>
   );
 }

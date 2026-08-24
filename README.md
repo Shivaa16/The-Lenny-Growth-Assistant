@@ -76,6 +76,21 @@ Both providers receive the same constrained evidence prompt and recent persisted
 
 Each successful turn atomically stores the user message, assistant answer, provider/model usage metadata, and the exact chunk citations presented in the UI.
 
+### Ship 30 artifact flow
+
+Enter a focused topic (or ask a grounded question first), then choose **Ship 30 essay** in the composer. The dedicated skill retrieves up to eight transcript passages, asks the active provider for an approximately 1,250-word structured essay, persists the artifact and source manifest, and opens it in the responsive artifact pane.
+
+- Markdown is displayed as inert text rather than injected into the application DOM.
+- HTML artifacts pass through a server-side allowlist sanitizer and render in a sandboxed iframe.
+- The iframe embeds a restrictive Content Security Policy and receives no script, navigation, or same-origin capability.
+- When retrieval has no supporting evidence, the model is not called and the artifact explains how to narrow the topic.
+
+Artifact endpoints:
+
+- `POST /api/v1/sessions/{session_id}/artifacts`
+- `GET /api/v1/sessions/{session_id}/artifacts`
+- `GET /api/v1/artifacts/{artifact_id}`
+
 ## Quality gates
 
 ```powershell

@@ -23,6 +23,8 @@ The browser communicates only with the FastAPI service. FastAPI owns validation,
 - `GET /api/v1/sessions/{id}`: retrieve session and messages
 - `POST /api/v1/sessions/{id}/messages`: send a message and stream/receive a response
 - `GET /api/v1/artifacts/{id}`: retrieve a stored artifact
+- `POST /api/v1/sessions/{id}/artifacts`: invoke the Ship 30 skill and persist an artifact
+- `GET /api/v1/sessions/{id}/artifacts`: restore a session's artifact history
 
 ## Implemented persistence boundary
 
@@ -65,6 +67,10 @@ Every chunk has a 768-dimensional `nomic-embed-text` vector and a generated Post
 ## Agent routing and grounded conversation
 
 The agent boundary is provider-neutral. `GroundedConversationService` loads bounded session history, builds a context-aware retrieval query, applies the grounding threshold, formats numbered evidence, calls the configured provider, and commits the complete turn with citations in one transaction.
+
+`Ship30ArtifactService` is a separate explicit skill boundary. It retrieves a larger evidence set, applies the Ship 30 writing contract, records provider usage and a source manifest in artifact metadata, and refuses to call the model when no grounded evidence exists. Artifacts belong to a session and are restored independently from chat messages.
+
+Generated Markdown is never interpreted as application HTML. Generated HTML is parsed through a conservative element/attribute allowlist before storage; executable and embedded content is discarded. The frontend adds a restrictive CSP and renders sanitized HTML in an iframe with an empty sandbox token set.
 
 The local adapter uses Ollama chat with low-temperature generation and captured usage metrics. The cloud adapter uses Anthropic's Claude Agent SDK with an explicit system prompt, no tools, one maximum turn, a request timeout, and a configurable cost budget. Provider-specific failures normalize to a safe 503 response without leaking credentials or internal exceptions.
 
