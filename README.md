@@ -70,6 +70,14 @@ Invoke-RestMethod http://localhost:5173/health/ready
 
 Both application containers use health checks and restart policies. Nginx adds baseline response-security headers and gives long local-model generations a bounded proxy timeout.
 
+After the services report healthy, run the evaluator smoke test through the public web endpoint:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/smoke.ps1
+```
+
+The script verifies liveness, PostgreSQL readiness, visible provider configuration, session creation, message persistence, and deterministic greeting routing. It intentionally avoids transcript retrieval so infrastructure can be validated before the optional index bootstrap. Use `-BaseUrl` to target a different deployment.
+
 ## Build the transcript index
 
 The source is the assignment-linked [ChatPRD transcript archive](https://github.com/ChatPRD/lennys-podcast-transcripts). The sync command creates a shallow checkout and refuses to overwrite a directory with a different Git origin.
