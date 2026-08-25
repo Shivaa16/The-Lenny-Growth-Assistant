@@ -27,7 +27,7 @@ class Settings(BaseSettings):
 
     llm_provider: Literal["ollama", "anthropic"] = "ollama"
     ollama_base_url: HttpUrl = HttpUrl("http://localhost:11434")
-    ollama_chat_model: str = "qwen2.5:3b"
+    ollama_chat_model: str = "qwen2.5:0.5b"
     ollama_embedding_model: str = "nomic-embed-text"
     embedding_dimension: int = Field(default=768, ge=128, le=4096)
     anthropic_api_key: SecretStr | None = None

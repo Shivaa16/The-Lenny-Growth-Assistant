@@ -13,6 +13,7 @@ The interface uses a restrained white-and-blue product system designed for long 
 - near-white content canvas with flat white working surfaces
 - navy session navigation for clear information hierarchy
 - one consistent blue accent for actions, focus, citations, and provider status
+- a custom blue title icon that remains crisp in browser tabs at any scale
 - subtle neutral borders and shadows instead of decorative gradients or visual effects
 - responsive chat and artifact layouts with accessible contrast and visible keyboard focus
 
@@ -40,7 +41,7 @@ Evaluator materials:
 | `DATABASE_URL` | Yes | Async PostgreSQL connection; pgvector must be available |
 | `LLM_PROVIDER` | Yes | `ollama` for the local demo or `anthropic` for cloud generation |
 | `OLLAMA_BASE_URL` | Ollama | Host URL; Compose supplies its container-safe value |
-| `OLLAMA_CHAT_MODEL` | Ollama | Local generation model, default `qwen2.5:3b` |
+| `OLLAMA_CHAT_MODEL` | Ollama | Low-storage local generation model, default `qwen2.5:0.5b` |
 | `OLLAMA_EMBEDDING_MODEL` | Yes | Retrieval embeddings, default `nomic-embed-text` |
 | `ANTHROPIC_API_KEY` | Anthropic | Optional cloud credential; never returned to the browser |
 | `ANTHROPIC_MODEL` | Anthropic | Claude model identifier selected by the evaluator |
@@ -53,7 +54,7 @@ Switching providers requires environment configuration only. Restart the API aft
 
 ## Low-storage development profile
 
-- Ollama with `qwen2.5:3b`
+- Ollama with `qwen2.5:0.5b` (398 MB)
 - Ollama `nomic-embed-text` embeddings
 - Supabase PostgreSQL with pgvector for normal development
 - Local FastAPI and React processes
@@ -135,7 +136,7 @@ Retrieval can be inspected independently from generation through `POST /api/v1/r
 
 `LLM_PROVIDER` selects the generation adapter without application-code changes:
 
-- `ollama` uses the local `/api/chat` endpoint and defaults to `qwen2.5:3b`.
+- `ollama` uses the local `/api/chat` endpoint and defaults to the low-storage `qwen2.5:0.5b` model.
 - `anthropic` uses the required Claude Agent SDK with tools disabled, one bounded turn, a timeout, and a configurable per-request budget.
 
 Both providers receive the same constrained evidence prompt and recent persisted session context. Retrieval runs before generation; when no passage clears the grounding threshold, the system returns a deterministic insufficient-evidence response without calling a model. Greetings are routed locally without retrieval so the interface remains natural and inexpensive.

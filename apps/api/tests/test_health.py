@@ -23,7 +23,7 @@ def test_provider_config_hides_secrets() -> None:
     assert response.status_code == 200
     body = response.json()
     assert body["provider"] == "ollama"
-    assert body["model"] == "qwen2.5:3b"
+    assert body["model"] == "qwen2.5:0.5b"
     assert "database_url" not in body
     assert "anthropic_api_key" not in body
 

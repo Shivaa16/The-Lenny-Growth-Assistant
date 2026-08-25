@@ -32,7 +32,7 @@ Supporting measures:
 ## 2. Assumptions
 
 - The evaluator values a complete, trustworthy workflow over broad transcript coverage.
-- The demo machine has 16 GB RAM and an RTX 3050, so the default local model is `qwen2.5:3b`.
+- The demo machine has 16 GB RAM and an RTX 3050; the chosen low-storage default is `qwen2.5:0.5b`, with larger models remaining an environment-only upgrade.
 - A cloud-hosted PostgreSQL instance is acceptable for the low-storage development profile; Docker Compose provides a local evaluator alternative.
 - Transcript repository licensing permits use for this evaluation. The system stores source metadata and transcript excerpts, not republished feeds.
 - Cloud Claude is optional at runtime; the product remains demonstrable using Ollama.

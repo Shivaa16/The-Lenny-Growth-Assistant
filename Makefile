@@ -1,7 +1,7 @@
 .PHONY: setup-models sync-transcripts ingest-transcripts ingest-demo up down migrate api-test web-build smoke
 
 setup-models:
-	ollama pull qwen2.5:3b
+	ollama pull qwen2.5:0.5b
 	ollama pull nomic-embed-text
 
 sync-transcripts:

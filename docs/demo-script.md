@@ -6,7 +6,7 @@ Keep the camera enabled throughout. Close unrelated windows and notifications. S
 
 “Product and growth teams want to use hundreds of Lenny’s Podcast interviews, but searching episodes manually is slow and synthesized advice easily loses its source. I built the Lenny Growth Assistant to produce reusable, source-backed answers without exposing prompts or infrastructure. I prioritized trust and operability over broad autonomous tooling.”
 
-Show the white/blue first-run UI and the visible `Local · qwen2.5:3b` provider badge.
+Show the white/blue first-run UI and the visible `Local · qwen2.5:0.5b` provider badge.
 
 ## 0:25–1:10 — Grounded local conversation
 

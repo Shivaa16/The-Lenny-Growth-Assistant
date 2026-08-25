@@ -6,7 +6,7 @@
 2. Pull the two local models:
 
    ```powershell
-   ollama pull qwen2.5:3b
+   ollama pull qwen2.5:0.5b
    ollama pull nomic-embed-text
    ```
 
