@@ -4,7 +4,9 @@ An AI-powered research and writing assistant grounded in transcripts from Lenny'
 
 ## Project status
 
-All seven implementation milestones and the live local infrastructure proof are complete. The submission owner still needs to record/upload the camera-on demo and submit the repository and video; see [`docs/evaluation.md`](docs/evaluation.md).
+All seven implementation milestones, the live local infrastructure proof, and the camera-on product demo are complete. The submission owner only needs to submit the repository and video; see [`docs/evaluation.md`](docs/evaluation.md).
+
+**Product demo:** [Watch the 2–3 minute camera-on walkthrough](https://youtu.be/5z0B0oz__3A)
 
 ## Visual direction
 

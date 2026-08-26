@@ -26,8 +26,8 @@ This matrix maps the take-home brief to concrete implementation evidence. It is 
 - [x] Run `scripts/smoke.ps1` against the containerized deployment.
 - [x] Index the 25-transcript demo subset with Ollama (2,041 chunks, zero failures).
 - [ ] Complete the manual UI plan in `docs/manual-test-plan.md`.
-- [ ] Record the 2–3 minute camera-on demo using `docs/demo-script.md`.
-- [ ] Upload the demo to YouTube and add its URL to the README.
+- [x] Record the 2–3 minute camera-on demo using `docs/demo-script.md`.
+- [x] Upload the demo to YouTube and add its URL to the README.
 - [x] Confirm the GitHub repository is public and GitHub Actions is green.
 - [ ] Submit the repository and video through the assignment form before the deadline.
 
