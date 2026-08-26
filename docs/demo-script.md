@@ -28,12 +28,12 @@ Briefly show **HTML brief** and the side-by-side viewer.
 
 “Generated HTML is untrusted. The server removes scripts, handlers, forms, embeds, and unsafe attributes. The browser then renders sanitized content in an iframe with an empty sandbox and restrictive CSP.”
 
-“My main trade-off was choosing a 3B local model. It fits a 16 GB laptop and keeps the demo private, but synthesis quality is lower than Claude. The provider interface allows cloud Claude without changing product code, while retrieval and citation rules remain identical.”
+“My main trade-off was choosing a 0.5B local model. Its 398 MB download fits a low-storage laptop and keeps the demo private, but synthesis quality is lower than Claude. Bounded generation keeps long artifacts operable, while the provider interface allows cloud Claude without changing retrieval or citation rules.”
 
 ## 2:15–2:40 — Operability and close
 
 Show `docker compose ps`, the successful smoke test, and the repository README.
 
-“A fresh evaluator gets Compose startup, automatic migrations, service health checks, incremental indexing, 32 automated tests, CI, and a troubleshooting runbook. Unsupported questions refuse to invent an answer. That is the core deployment promise: useful, inspectable, and operable.”
+“A fresh evaluator gets Compose startup, automatic migrations, service health checks, incremental indexing, automated tests, CI, and a troubleshooting runbook. Unsupported questions refuse to invent an answer. That is the core deployment promise: useful, inspectable, and operable.”
 
 End on the product, not the terminal.

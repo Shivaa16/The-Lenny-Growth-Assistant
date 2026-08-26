@@ -114,7 +114,7 @@ class KnowledgeRepository:
         combined = semantic * 0.75 + func.least(keyword, 1.0) * 0.25
         statement = (
             select(
-                ChunkRecord.id,
+                ChunkRecord.id.label("chunk_id"),
                 ChunkRecord.source_id,
                 ChunkRecord.content,
                 ChunkRecord.ordinal,

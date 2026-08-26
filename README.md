@@ -4,7 +4,7 @@ An AI-powered research and writing assistant grounded in transcripts from Lenny'
 
 ## Project status
 
-All seven implementation milestones are complete. Final submission still requires the submitter-controlled checks listed in [`docs/evaluation.md`](docs/evaluation.md), including a live Docker/Ollama smoke run and the camera-on YouTube demo.
+All seven implementation milestones and the live local infrastructure proof are complete. The submission owner still needs to record/upload the camera-on demo and submit the repository and video; see [`docs/evaluation.md`](docs/evaluation.md).
 
 ## Visual direction
 
@@ -46,7 +46,7 @@ Evaluator materials:
 | `ANTHROPIC_API_KEY` | Anthropic | Optional cloud credential; never returned to the browser |
 | `ANTHROPIC_MODEL` | Anthropic | Claude model identifier selected by the evaluator |
 | `ANTHROPIC_MAX_BUDGET_USD` | No | Per-request Claude Agent SDK budget guard |
-| `GENERATION_TIMEOUT_SECONDS` | No | Provider timeout, default 90 seconds |
+| `GENERATION_TIMEOUT_SECONDS` | No | Provider timeout, default 180 seconds |
 | `RETRIEVAL_SCORE_THRESHOLD` | No | Minimum evidence score before generation |
 | `TRANSCRIPT_SOURCE_DIR` | No | Local shallow transcript checkout |
 
@@ -109,6 +109,8 @@ powershell -ExecutionPolicy Bypass -File scripts/smoke.ps1
 ```
 
 The script verifies liveness, PostgreSQL readiness, visible provider configuration, session creation, message persistence, and deterministic greeting routing. It intentionally avoids transcript retrieval so infrastructure can be validated before the optional index bootstrap. Use `-BaseUrl` to target a different deployment.
+
+Final live verification on 2026-08-26 used the Compose stack, host Ollama, and the 25-transcript subset: 25 sources produced 2,041 chunks with zero ingestion failures. Grounded positioning chat and follow-up returned citations, an unrelated Mars-submarine query was refused before generation, and the Ship 30 flow produced a persisted 1,383-word Markdown artifact with eight source records.
 
 ## Build the transcript index
 

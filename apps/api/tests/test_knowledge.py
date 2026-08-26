@@ -5,9 +5,10 @@ import httpx
 import pytest
 
 from lenny_api.knowledge.chunking import chunk_transcript
+from lenny_api.knowledge.cli import repository_commit
 from lenny_api.knowledge.embeddings import EmbeddingProviderError, OllamaEmbeddingProvider
 from lenny_api.knowledge.parser import TranscriptParseError, discover_transcripts, parse_transcript
-from lenny_api.knowledge.repository import RetrievedEvidence
+from lenny_api.knowledge.repository import KnowledgeRepository, RetrievedEvidence
 from lenny_api.knowledge.service import IngestionService, RetrievalService
 from lenny_api.knowledge.sync import TranscriptSyncError, sync
 
@@ -68,6 +69,17 @@ def test_chunking_is_deterministic_and_overlapping() -> None:
         (9, 12),
     ]
     assert chunks[0].content.split()[-2:] == chunks[1].content.split()[:2]
+
+
+def test_repository_commit_is_optional_when_git_is_unavailable(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    def missing_git(*args, **kwargs):
+        raise FileNotFoundError
+
+    monkeypatch.setattr("lenny_api.knowledge.cli.subprocess.run", missing_git)
+
+    assert repository_commit(tmp_path) is None
 
 
 @pytest.mark.asyncio
@@ -167,6 +179,23 @@ class FakeKnowledgeRepository:
                 score=0.2,
             ),
         ][:limit]
+
+
+@pytest.mark.asyncio
+async def test_repository_search_labels_chunk_identifier_for_response_mapping() -> None:
+    class EmptyResult:
+        def all(self):
+            return []
+
+    class InspectingSession:
+        async def execute(self, statement):
+            assert "chunk_id" in statement.selected_columns
+            assert "id" not in statement.selected_columns
+            return EmptyResult()
+
+    repository = KnowledgeRepository(InspectingSession())
+
+    assert await repository.search("positioning", [0.1, 0.2, 0.3], limit=3) == []
 
 
 @pytest.mark.asyncio

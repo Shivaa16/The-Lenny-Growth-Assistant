@@ -11,12 +11,15 @@ from lenny_api.persistence.database import dispose_engine, session_factory
 
 
 def repository_commit(repository_root: Path) -> str | None:
-    result = subprocess.run(
-        ["git", "-C", str(repository_root), "rev-parse", "HEAD"],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(repository_root), "rev-parse", "HEAD"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except FileNotFoundError:
+        return None
     return result.stdout.strip() if result.returncode == 0 else None
 
 

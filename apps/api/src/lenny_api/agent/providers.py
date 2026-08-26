@@ -38,7 +38,7 @@ class OllamaChatProvider:
                         "model": self.model,
                         "messages": payload_messages,
                         "stream": False,
-                        "options": {"temperature": 0.2},
+                        "options": {"temperature": 0.2, "num_predict": 1600},
                         "keep_alive": "5m",
                     },
                 )
@@ -124,4 +124,3 @@ class ClaudeAgentProvider:
         return GenerationResult(
             content=content, provider="anthropic", model=self.model, usage=usage
         )
-

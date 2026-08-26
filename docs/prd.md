@@ -25,7 +25,7 @@ Primary operational metric: a fresh evaluator can clone, configure, and reach a 
 
 Supporting measures:
 
-- Median grounded-answer latency below 12 seconds with the local 3B model on the target laptop
+- Median grounded-answer latency below 12 seconds with the low-storage local model on the target laptop
 - 100% of unsupported evaluation questions produce an explicit insufficient-evidence response
 - 100% of generated HTML artifacts are rendered using the documented sanitization and isolation policy
 

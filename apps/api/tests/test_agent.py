@@ -22,6 +22,7 @@ async def test_ollama_provider_uses_bounded_deterministic_chat_contract() -> Non
         assert request.url.path == "/api/chat"
         assert payload["stream"] is False
         assert payload["options"]["temperature"] == 0.2
+        assert payload["options"]["num_predict"] == 1600
         assert payload["messages"][0] == {"role": "system", "content": "Grounded only"}
         return httpx.Response(
             200,

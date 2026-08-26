@@ -5,7 +5,7 @@ This is a curated record of material agent-assisted decisions, failures, correct
 ## Foundation and product framing
 
 - Converted the ambiguous brief into a PRD, design principles, architecture boundaries, and seven milestones.
-- Selected a low-storage profile: host Ollama with a 3B chat model, `nomic-embed-text`, and PostgreSQL/pgvector.
+- Selected a low-storage profile: host Ollama with the 398 MB `qwen2.5:0.5b` chat model, `nomic-embed-text`, and PostgreSQL/pgvector.
 - Chose explicit provider, retrieval, session, and artifact boundaries to make the system testable and replaceable.
 
 ## Failure: greeting requests failed
@@ -45,7 +45,13 @@ This is a curated record of material agent-assisted decisions, failures, correct
 
 **Observed:** Initial artifact changes triggered line-length lint failures. A validation command also assumed the wrong working directory. Docker was unavailable in the development execution environment.
 
-**Correction:** Fixed formatting, reran the complete suite, made paths explicit, statically validated Compose/CI YAML, and documented that a Docker-enabled machine must complete the final smoke test. No live-container claim was made.
+**Correction:** Fixed formatting, reran the complete suite, made paths explicit, and later installed and exercised the full Compose/Ollama stack on the target machine.
+
+## Failures found during final live proof
+
+**Observed:** Containerized ingestion failed because the slim API image had no Git executable. After ingestion, retrieval failed because the SQL chunk identifier was returned as `id` instead of the response contract's `chunk_id`. A weak relevance threshold also admitted an unrelated query, and unbounded local generation exceeded the artifact timeout.
+
+**Correction:** Made repository commit metadata optional when Git is absent, explicitly labeled the retrieval column, raised the grounding threshold from `0.35` to `0.45`, and bounded Ollama output to 1,600 tokens with a 180-second timeout. Regression tests cover both code defects. The repeated live run indexed 25 transcripts into 2,041 chunks, returned grounded citations and a contextual follow-up, refused unrelated evidence, and produced a 1,383-word artifact with eight citations.
 
 ## Verification discipline
 
