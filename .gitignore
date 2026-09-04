@@ -16,4 +16,5 @@ coverage/
 .DS_Store
 *.log
 .assignment-review/
+.assignment-audit/
 data/
